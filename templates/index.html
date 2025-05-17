@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Convolución PyCUDA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/styles.css" rel="stylesheet">
+    <script src="{{ url_for('static', filename='Scripts/scripts.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='Scripts/gpu-config.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='Scripts/processing.js') }}" defer></script>
+</head>
+
+<body>
+    <div class="text-space">
+        <img class="logo-ups" src="static\Logo_Universidad_Politécnica_Salesiana_del_Ecuador.png">
+        <h1 class="title">Procesamiento de Imágenes con Filtros</h1>
+    </div>
+    <!-- Selector de filtro -->
+    <div class="selection-space">
+        <h1 class="subtitle">Seleccionar Filtro</h1>
+        <!-- Selector de filtro como imágenes -->
+        <div class="filter-options" id="filter-options">
+            <div class="filter-option" data-value="dog">
+                <img class="select-img" src="static/dog.jpg" alt="DoG" />
+                <p>Difference of Gaussians (DoG)</p>
+            </div>
+            <div class="filter-option" data-value="motion">
+                <img class="select-img" src="static/motion_blur.jpeg" alt="Motion Blur" />
+                <p>Motion Blur</p>
+            </div>
+            <div class="filter-option selected" data-value="mean">
+                <img class="select-img" src="static/mean_filter.png" alt="Mean Filter" />
+                <p>Mean Filter</p>
+            </div>
+        </div>
+        <input type="hidden" name="method" id="method-input" value="dog">
+    </div>
+
+    <div class="img-parameters-space">
+        <div class="form-space" method="post" id="filter-form">
+            <div class="size-mask-space">
+                <label class="form-label">Tamaño de Máscara</label>
+                <div class="size-mask" id="mask-size-group">
+                    <div class="flex-wrap-options" id="mask-options">
+                        <!-- Mask buttons will be populated here -->
+                    </div>
+                    <div id="custom-size-group" class="personalized-choice" style="display: none;">
+                        <label for="mask_size" class="form-label">Tamaño:</label>
+                        <input type="number" name="mask_size" class="personalized-choice-text" placeholder="ej. 201" min="1" max="501" step="2" disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="dropdown-choice">
+                <label class="form-label">Modo:</label>
+                <select name="mode" id="mode-filter-selector" class="form-select-choice">
+                    <option value="cpu">CPU</option>
+                    <option value="gpu">GPU</option>
+                </select>
+                
+                
+                <div id="gpu-config-group" class="gpu-config-group">
+                    <div class="column-info">
+                        <label for="blocks_x" class="form-label">Bloques (X):</label>
+                        <input type="number" name="blocks_x" class="form-control form-control-sm" value="16" min="1" max="1024">
+                    </div>
+                    <div class="column-info">
+                        <label for="blocks_y" class="form-label">Bloques (Y):</label>
+                        <input type="number" name="blocks_y" class="form-control form-control-sm" value="16" min="1" max="1024">
+                    </div>
+                    <div class="column-info">
+                        <label for="threads_x" class="form-label">Hilos X:</label>
+                        <input type="number" name="threads_x" class="form-control form-control-sm" value="16" min="1" max="32">
+                    </div>
+                    <div class="column-info">
+                        <label for="threads_y" class="form-label">Hilos Y:</label>
+                        <input type="number" name="threads_y" class="form-control form-control-sm" value="16" min="1" max="32">
+                    </div>
+                </div>
+                
+                <button onclick="processImage()" class="btn-filter" id="process-button">Procesar</button>
+            </div>
+
+        </div> 
+        <div class="hero">
+            <label for="image" id="drop-area">
+                <input type="file" accept="image/*" id="image" hidden>
+                <div class="img-view" id="img-view">
+                    <img src="/static/upload_cloud.png">
+                    <p>Drag and Drop or click here<br>to upload image</p>
+                    <span>Upload any images from desktop</span>
+                </div>
+            </label>
+        </div>  
+    </div>
+    
+    
+
+    <!-- Formulario único que cambia según el filtro seleccionado -->
+    
+    {% if stats and output_image %}
+    <hr class="my-4">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h5>Original</h5>
+                <img src="{{ input_image }}" class="img-fluid rounded custom-img">
+            </div>
+            <div class="col-md-6">
+                <h5>Procesada ({{ stats.method }})</h5>
+                <img src="{{ output_image }}" class="img-fluid rounded custom-img">
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="table-container mt-3" style="margin-bottom: 20px;">
+            <h5>Estadísticas:</h5>
+            <table class="table custom-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Parámetro</th>
+                        <th scope="col">Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Filtro</strong></td>
+                        <td>{{ stats.method }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modo</strong></td>
+                        <td>{{ stats.mode }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tamaño máscara</strong></td>
+                        <td>{{ stats.mask_size }}</td>
+                    </tr>
+                    {% if stats.mode == 'GPU' %}
+                    <tr>
+                        <td><strong>Configuración GPU</strong></td>
+                        <td>Bloques: {{ stats.blocks }}, Hilos: {{ stats.threads }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td><strong>Tiempo de ejecución</strong></td>
+                        <td>{{ stats.time_s | round(4) }} segundos</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="container mt-3">
+        <button onclick="window.location.reload();" class="btn btn-secondary">Nueva Transformación</button>
+    </div>
+{% endif %}
+<script>
+    populateMaskOptions() 
+</script>
+</body>
+</html>

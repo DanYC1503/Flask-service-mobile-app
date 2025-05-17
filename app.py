@@ -1,0 +1,86 @@
+import os
+from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
+from filter_scripts.pycuda_dog import process_image
+from filter_scripts.pycuda_motion_blur import process_image_motion_blur
+from filter_scripts.pycuda_mean_filter import process_image_mean_filter
+from PIL import Image
+import numpy as np
+
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/process', methods=['POST'])
+def process():
+    file = request.files.get('image')
+    if not file or not allowed_file(file.filename):
+        return jsonify({'error': 'Formato de imagen no válido'}), 400
+
+    filename = secure_filename(file.filename)
+    path_in = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(path_in)
+
+    # Leer imagen como numpy array
+    img = Image.open(path_in).convert('RGB')
+    img_np = np.array(img, dtype=np.uint8)
+
+    # Tipo de procesamiento
+    method = request.form.get('method', 'dog')
+
+    # Leer tamaño de máscara personalizado
+    try:
+        mask_size = int(request.form['mask_size'])
+        if mask_size < 1 or mask_size > 501 or mask_size % 2 == 0:
+            raise ValueError
+    except (KeyError, ValueError):
+        return jsonify({'error': 'Tamaño de máscara inválido: debe ser impar entre 1 y 501'}), 400
+
+    # Configuración fija de GPU
+    gpu_config = {
+        'blocks_x': 16,
+        'blocks_y': 16,
+        'threads_x': 16,
+        'threads_y': 16
+    }
+
+    # Procesamiento según método
+    try:
+        if method == 'motion':
+            result_np, stats = process_image_motion_blur(img_np, mask_size, **gpu_config)
+            out_name = f"motion_gpu_{mask_size}.jpg"
+        elif method == 'mean':
+            result_np, stats = process_image_mean_filter(img_np, mask_size, **gpu_config)
+            out_name = f"mean_gpu_{mask_size}.jpg"
+        else:  # default: dog
+            result_np, stats = process_image(img_np, mask_size, **gpu_config)
+            out_name = f"dog_gpu_{mask_size}.jpg"
+
+        stats['method'] = method
+        stats.update({
+            'mask_size': mask_size,
+            'blocks': f"{gpu_config['blocks_x']}x{gpu_config['blocks_y']}",
+            'threads': f"{gpu_config['threads_x']}x{gpu_config['threads_y']}"
+        })
+
+    except Exception as e:
+        return jsonify({'error': f'Error al procesar imagen: {str(e)}'}), 500
+
+    # Guardar imagen procesada
+    path_out = os.path.join(app.config['UPLOAD_FOLDER'], out_name)
+    Image.fromarray(result_np).save(path_out)
+
+    return jsonify({
+        'input_image_url': f"/static/uploads/{filename}",
+        'output_image_url': f"/static/uploads/{out_name}",
+        'stats': stats
+    }), 200
+
+if __name__ == '__main__':
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    app.run(host='0.0.0.0', debug=True, use_reloader=False)
