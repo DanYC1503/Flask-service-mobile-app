@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from filter_scripts.pycuda_dog import process_image
 from filter_scripts.pycuda_motion_blur import process_image_motion_blur
 from filter_scripts.pycuda_mean_filter import process_image_mean_filter
+from filter_scripts.pycuda_negative import process_image_negative
 from PIL import Image
 import numpy as np
 
@@ -19,6 +20,7 @@ def allowed_file(filename):
 @app.route('/process', methods=['POST'])
 def process():
     file = request.files.get('image')
+    print("Recibido archivo:", file)
     if not file or not allowed_file(file.filename):
         return jsonify({'error': 'Formato de imagen no válido'}), 400
 
@@ -31,7 +33,7 @@ def process():
     img_np = np.array(img, dtype=np.uint8)
 
     # Tipo de procesamiento
-    method = request.form.get('method', 'dog')
+    method = request.form.get('method')
 
     # Leer tamaño de máscara personalizado
     try:
@@ -57,6 +59,9 @@ def process():
         elif method == 'mean':
             result_np, stats = process_image_mean_filter(img_np, mask_size, **gpu_config)
             out_name = f"mean_gpu_{mask_size}.jpg"
+        elif method == 'negative':
+            result_np, stats = process_image_negative(img_np, **gpu_config)
+            out_name = f"negative_gpu.jpg"
         else:  # default: dog
             result_np, stats = process_image(img_np, mask_size, **gpu_config)
             out_name = f"dog_gpu_{mask_size}.jpg"

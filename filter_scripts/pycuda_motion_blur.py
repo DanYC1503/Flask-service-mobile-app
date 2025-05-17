@@ -48,7 +48,7 @@ def create_diagonal_kernel(kernel_size):
     kernel /= kernel_size
     return kernel
 
-def process_image_motion_blur(img_np: np.ndarray, mask_size: int, mode: str, 
+def process_image_motion_blur(img_np: np.ndarray, mask_size: int,
                             blocks_x=16, blocks_y=16, threads_x=16, threads_y=16):
     h, w, c = img_np.shape
     stats = {'mask_size': mask_size}

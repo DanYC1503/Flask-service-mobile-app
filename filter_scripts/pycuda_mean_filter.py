@@ -87,7 +87,7 @@ class MeanFilter:
         return output
 
 # Función principal que usa la clase MeanFilter
-def process_image_mean_filter(img_np, mask_size, mode='gpu', blocks_x=16, blocks_y=16, threads_x=16, threads_y=16):
+def process_image_mean_filter(img_np, mask_size, blocks_x=16, blocks_y=16, threads_x=16, threads_y=16):
     filter = MeanFilter()
     start = time.time()
     
@@ -103,15 +103,13 @@ def process_image_mean_filter(img_np, mask_size, mode='gpu', blocks_x=16, blocks
 
     elapsed = time.time() - start
     stats = {
-        'mode': mode.upper(),
         'mask_size': mask_size,
         'time_s': round(elapsed, 4)
     }
     
-    if mode == 'gpu':
-        stats.update({
-            'blocks': f"{blocks_x}x{blocks_y}",
-            'threads': f"{threads_x}x{threads_y}"
-        })
+    stats.update({
+        'blocks': f"{blocks_x}x{blocks_y}",
+        'threads': f"{threads_x}x{threads_y}"
+    })
 
     return result, stats
