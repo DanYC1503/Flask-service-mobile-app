@@ -5,6 +5,7 @@ from filter_scripts.pycuda_dog import process_image
 from filter_scripts.pycuda_motion_blur import process_image_motion_blur
 from filter_scripts.pycuda_mean_filter import process_image_mean_filter
 from filter_scripts.pycuda_negative import process_image_negative
+from filter_scripts.pycuda_ink import process_image_ink_filter
 from PIL import Image
 import numpy as np
 
@@ -62,6 +63,9 @@ def process():
         elif method == 'negative':
             result_np, stats = process_image_negative(img_np, **gpu_config)
             out_name = f"negative_gpu.jpg"
+        elif method == 'ink':
+            result_np, stats = process_image_ink_filter(img_np, **gpu_config)
+            out_name = f"ink_gpu.jpg"
         else:  # default: dog
             result_np, stats = process_image(img_np, mask_size, **gpu_config)
             out_name = f"dog_gpu_{mask_size}.jpg"
