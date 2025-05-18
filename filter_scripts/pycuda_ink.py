@@ -75,7 +75,7 @@ class InkFilter:
         self._compiled_mask_size = mask_size
         self._ink_filter_gpu = self._mod.get_function("ink_filter_gpu")
 
-    def process_gpu(self, img_np, blocks_x=16, blocks_y=16, threads_x=16, threads_y=16):
+    def process_gpu(self, img_np, mask_size, blocks_x=16, blocks_y=16, threads_x=16, threads_y=16):
         height, width, channels = img_np.shape
         output = np.zeros_like(img_np, dtype=np.uint8)
 
@@ -89,7 +89,7 @@ class InkFilter:
         self.auto_context.push()
         try:
             if self._mod is None:
-                self._compile_kernel(mask_size=5)
+                self._compile_kernel(mask_size)
 
             d_input = cuda.mem_alloc(img_np.nbytes)
             d_output = cuda.mem_alloc(output.nbytes)
@@ -109,12 +109,13 @@ class InkFilter:
 
 
 # Función principal para usar el filtro
-def process_image_ink_filter(img_np, blocks_x=16, blocks_y=16, threads_x=16, threads_y=16):
+def process_image_ink_filter(img_np, mask_size = 3 ,blocks_x=16, blocks_y=16, threads_x=16, threads_y=16):
     filter = InkFilter()
     start = time.time()
 
     result = filter.process_gpu(
         img_np,
+        mask_size,
         blocks_x=blocks_x,
         blocks_y=blocks_y,
         threads_x=threads_x,

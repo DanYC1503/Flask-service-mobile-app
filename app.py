@@ -6,8 +6,10 @@ from filter_scripts.pycuda_motion_blur import process_image_motion_blur
 from filter_scripts.pycuda_mean_filter import process_image_mean_filter
 from filter_scripts.pycuda_negative import process_image_negative
 from filter_scripts.pycuda_ink import process_image_ink_filter
+from filter_scripts.pycuda_don_bosco import process_image_background, load_image, resize_to_match, get_person_mask
 from PIL import Image
 import numpy as np
+import mediapipe as mp
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -64,8 +66,15 @@ def process():
             result_np, stats = process_image_negative(img_np, **gpu_config)
             out_name = f"negative_gpu.jpg"
         elif method == 'ink':
-            result_np, stats = process_image_ink_filter(img_np, **gpu_config)
+            result_np, stats = process_image_ink_filter(img_np, mask_size, **gpu_config)
             out_name = f"ink_gpu.jpg"
+        elif method == 'back':
+            bg_np = load_image("static/BackGrounds/background.jpg")
+            bg_np = resize_to_match(bg_np, img_np.shape)
+            mask_np = get_person_mask(img_np)
+            result_np, stats = process_image_background(img_np, mask_np, bg_np)
+            out_name = f"backGround_filter_gpu.jpg"
+
         else:  # default: dog
             result_np, stats = process_image(img_np, mask_size, **gpu_config)
             out_name = f"dog_gpu_{mask_size}.jpg"

@@ -1,13 +1,14 @@
 import numpy as np
 import time
 from PIL import Image
-import pycuda.autoinit
 import pycuda.driver as cuda
 from pycuda.compiler import SourceModule
+cuda.init()
 
 class MeanFilter:
     def __init__(self):
-        self.auto_context = pycuda.autoinit.context
+        self.device = cuda.Device(0)
+        self.context = self.device.make_context()
         self._mod = None
         self._mean_filter_gpu = None
         self._compiled_mask_size = None
@@ -56,8 +57,7 @@ class MeanFilter:
     def process_gpu(self, img_np, mask_size, blocks_x=16, blocks_y=16, threads_x=16, threads_y=16):
         height, width, channels = img_np.shape
         output = np.zeros_like(img_np, dtype=np.uint8)
-        
-        # Configuración personalizada de bloques e hilos
+
         block_dim = (threads_x, threads_y, 1)
         grid_dim = (
             (width + threads_x - 1) // threads_x,
@@ -65,7 +65,7 @@ class MeanFilter:
             1
         )
 
-        self.auto_context.push()
+        self.context.push()
         try:
             if self._mod is None or self._compiled_mask_size != mask_size:
                 self._compile_kernel(mask_size)
@@ -82,10 +82,12 @@ class MeanFilter:
 
             cuda.memcpy_dtoh(output, d_output)
         finally:
-            self.auto_context.pop()
+            self.context.pop()
 
         return output
-
+    def __del__(self):
+        if hasattr(self, 'context'):
+            self.context.detach()
 # Función principal que usa la clase MeanFilter
 def process_image_mean_filter(img_np, mask_size, blocks_x=16, blocks_y=16, threads_x=16, threads_y=16):
     filter = MeanFilter()
