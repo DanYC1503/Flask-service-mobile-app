@@ -1,4 +1,4 @@
-package com.ups.api_gateway;
+package com.ups.api_gateway.api_gateway;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
