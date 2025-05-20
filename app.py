@@ -107,8 +107,8 @@ def process():
     # Return JSON
     return jsonify({
         'input_image_url': f"/static/uploads/{filename}",
-        'output_image_url': os.path.join(external_output_dir, out_name),  # For web access
-        'external_image_path': external_path,               # For local access
+        'output_image_url': os.path.join(external_output_dir, out_name), 
+        'external_image_path': external_path,               
         'output_image_base64': img_base64,
         'stats': stats
     }), 200
