@@ -1,0 +1,214 @@
+{
+	"info": {
+		"_postman_id": "66fea1c6-f74e-4c5b-a225-7f80adab14bd",
+		"name": "UPS GLAM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32277679"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Verify-token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{JWT}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "{{content_type}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_auth}}/auth/verify-token",
+							"host": [
+								"{{url_auth}}"
+							],
+							"path": [
+								"auth",
+								"verify-token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"samupardo\",\n  \"email\": \"samuelpardo1997@gmail.com\",\n  \"photoUrl\": \"https://someurl.com/photo.jpg\",\n  \"displayName\": \"Samuel Pardo\",\n  \"bio\": \"dev\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_user}}/users/{{user_uid}}",
+							"host": [
+								"{{url_user}}"
+							],
+							"path": [
+								"users",
+								"{{user_uid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_user}}/users/{{user_uid}}",
+							"host": [
+								"{{url_user}}"
+							],
+							"path": [
+								"users",
+								"{{user_uid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"gato02\",\n  \"email\": \"samuelpardo1997@gmail.com\",\n  \"photoUrl\": \"https://someurl.com/photo.jpg\",\n  \"displayName\": \"Jairo Salazar\",\n  \"bio\": \"dev\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_user}}/users/{{user_uid}}",
+							"host": [
+								"{{url_user}}"
+							],
+							"path": [
+								"users",
+								"{{user_uid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_user}}/users",
+							"host": [
+								"{{url_user}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Request",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_user}}/users/{{user_uid}}",
+							"host": [
+								"{{url_user}}"
+							],
+							"path": [
+								"users",
+								"{{user_uid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url_auth",
+			"value": "http://localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "url_user",
+			"value": "http://localhost:8082",
+			"type": "string"
+		},
+		{
+			"key": "JWT",
+			"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImZlNjVjY2I4ZWFkMGJhZWY1ZmQzNjE5NWQ2NTI4YTA1NGZiYjc2ZjMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdXBzZ2xhbSIsImF1ZCI6InVwc2dsYW0iLCJhdXRoX3RpbWUiOjE3NDc5ODMzMTUsInVzZXJfaWQiOiJqRFdDbXNFTDFsY2xDR3RjY3VWc3Q2eFdhUXQyIiwic3ViIjoiakRXQ21zRUwxbGNsQ0d0Y2N1VnN0NnhXYVF0MiIsImlhdCI6MTc0Nzk4MzMxNSwiZXhwIjoxNzQ3OTg2OTE1LCJlbWFpbCI6InNhbXVlbHBhcmRvMTk5N0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsic2FtdWVscGFyZG8xOTk3QGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.DWm-CT0ggcDjKG522qigwDRYvTo5AD5bEJ5SvtoAoQFC4sWYh4gTAf5YMjTghzgu_Hy-XrFGcUZy2RsM9jbbVYP7k3-97e_yF5y8JevktMs8ar96T1Fm2_J53GpG3UZneRZwo9mPZZpn0lCkJnQ58u3YNhz5YryCZhL7Afs1ZMZ6YwHYqPRbOtUEcY0rqQCFeHeK_DRf-zFC9QMwGQVHY1C8WK9e3eFXTCGxMGttG5yxVV56L9QhvrHmjLnHtwkUK0eEA3XfEryL8Iq1IAljz0Kc-HlotDpHroibsPEkAazGVSQwyLBa4sbC0qlhFfbQFGZwKKr2K2UBvRoxJNy_8g",
+			"type": "string"
+		},
+		{
+			"key": "user_uid",
+			"value": "abcd1234",
+			"type": "string"
+		},
+		{
+			"key": "content_type",
+			"value": "application/json",
+			"type": "string"
+		}
+	]
+}
