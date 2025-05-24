@@ -1,9 +1,10 @@
 package com.ups.user.service.user_service.service;
 
-import com.google.cloud.firestore.Firestore;
 import com.ups.user.service.user_service.dto.UserProfileDTO;
 import com.ups.user.service.user_service.model.UserProfile;
 import com.ups.user.service.user_service.repository.FirestoreUserRepository;
+
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,9 @@ public class UserService {
         return repository.findById(uid);
     }
 
-    public Mono<UserProfile> createUser(String uid, UserProfileDTO dto) {
-        UserProfile user = new UserProfile(uid, dto.getEmail(), dto.getDisplayName(), dto.getPhotoUrl(), dto.getBio());
+    public Mono<UserProfile> createUser(UserProfileDTO dto) {
+        String uid = UUID.randomUUID().toString();
+        UserProfile user = new UserProfile(uid, dto.getEmail(), dto.getUserName(), dto.getDisplayName(), dto.getBio());
         return repository.save(user);
     }
 
@@ -30,17 +32,16 @@ public class UserService {
         return repository.findById(uid)
                 .flatMap(existingUser -> {
                     existingUser.setEmail(dto.getEmail());
+                    existingUser.setUserName(dto.getUserName());
                     existingUser.setDisplayName(dto.getDisplayName());
-                    existingUser.setPhotoUrl(dto.getPhotoUrl());
                     existingUser.setBio(dto.getBio());
-                    return repository.save(existingUser);
+                    return repository.update(existingUser);
                 });
     }
 
     public Mono<Void> deleteUser(String uid) {
         return repository.deleteById(uid);
     }
-
 
     public Flux<UserProfile> getAllUsers() {
         return repository.findAll();

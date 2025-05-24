@@ -1,16 +1,16 @@
-package com.ups.user.service.user_service.config;
+package com.ups.post.service.post_service.config;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 
 @Configuration
@@ -37,4 +37,5 @@ public class FirebaseConfig {
 
         return firestoreOptions.getService();
     }
+
 }

@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProfile {
-    private String uid; // Id Firebase
+    private String uid;
     private String email;
+    private String userName;
     private String displayName;
-    private String photoUrl;
     private String bio;
 }

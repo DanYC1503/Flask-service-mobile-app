@@ -46,6 +46,20 @@ public class FirestoreUserRepository {
             .thenReturn(user);
     }
 
+    public Mono<UserProfile> update(UserProfile user) {
+        DocumentReference docRef = firestore.collection(COLLECTION).document(user.getUid());
+    
+        ApiFuture<WriteResult> future = docRef.update(
+            "email", user.getEmail(),
+            "userName", user.getUserName(),
+            "displayName", user.getDisplayName(),
+            "bio", user.getBio()
+        );
+    
+        return Mono.fromFuture(toCompletableFuture(future))
+            .thenReturn(user);
+    }
+
     public Mono<Void> deleteById(String uid) {
         DocumentReference docRef = firestore.collection(COLLECTION).document(uid);
         ApiFuture<WriteResult> future = docRef.delete();

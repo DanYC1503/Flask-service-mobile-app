@@ -33,9 +33,9 @@ public class UserController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{uid}")
-    public Mono<ResponseEntity<UserProfile>> createUser(@PathVariable String uid, @RequestBody UserProfileDTO dto) {
-        return userService.createUser(uid, dto)
+    @PostMapping
+    public Mono<ResponseEntity<UserProfile>> createUser(@RequestBody UserProfileDTO dto) {
+        return userService.createUser(dto)
                 .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(user));
     }
 
