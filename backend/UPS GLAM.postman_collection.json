@@ -59,7 +59,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"samupardo\",\n  \"email\": \"samuelpardo1997@gmail.com\",\n  \"photoUrl\": \"https://someurl.com/photo.jpg\",\n  \"displayName\": \"Samuel Pardo\",\n  \"bio\": \"dev\"\n}\n",
+							"raw": "{\n    \"email\": \"samuelpardo1997@gmail.com\",\n    \"userName\": \"samupardo\",\n    \"displayName\": \"Samuel Pardo\",\n    \"bio\": \"dev\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -67,13 +67,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{url_user}}/users/{{user_uid}}",
+							"raw": "{{url_user}}/users",
 							"host": [
 								"{{url_user}}"
 							],
 							"path": [
-								"users",
-								"{{user_uid}}"
+								"users"
 							]
 						}
 					},
@@ -104,7 +103,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"gato02\",\n  \"email\": \"samuelpardo1997@gmail.com\",\n  \"photoUrl\": \"https://someurl.com/photo.jpg\",\n  \"displayName\": \"Jairo Salazar\",\n  \"bio\": \"dev\"\n}\n",
+							"raw": "{\n  \"userName\": \"ElGat02\",\n  \"email\": \"jsalazr@gmail.com\",\n  \"displayName\": \"Jairo Salazar\",\n  \"bio\": \"user\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -142,7 +141,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete Request",
+					"name": "Delete User",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -154,6 +153,273 @@
 							"path": [
 								"users",
 								"{{user_uid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Post",
+			"item": [
+				{
+					"name": "Create Post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Mi segunda publicación\",\n  \"content\": \"Este es el contenido.\",\n  \"authorId\": \"abc1234\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_post}}/posts",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Posts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_post}}/posts",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Post",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_post}}/posts/{{id}}",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Post",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Mi primera publicacion\",\n  \"content\": \"Este es el contenido.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_post}}/posts/{{id}}",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Post",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_post}}/posts/{{id}}",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"efgh5678\",\n    \"content\": \"Esto es el comentario 2 sobre la imagen.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_post}}/posts/{{post_id}}/comments",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts",
+								"{{post_id}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_post}}/posts/{{post_id}}/comments",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts",
+								"{{post_id}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_post}}/posts/{{post_id}}/comments/{{comment_id}}",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts",
+								"{{post_id}}",
+								"comments",
+								"{{comment_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Comment",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"ESTO ES UN COMENTARIO CAMBIADO\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url_post}}/posts/{{post_id}}/comments/{{comment_id}}",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts",
+								"{{post_id}}",
+								"comments",
+								"{{comment_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Like",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url_post}}/posts/{{post_id}}/likes/{{user_id}}",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts",
+								"{{post_id}}",
+								"likes",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Like",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url_post}}/posts/{{post_id}}/likes/{{user_id}}",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts",
+								"{{post_id}}",
+								"likes",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Count Likes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_post}}/posts/{{post_id}}/likes/count",
+							"host": [
+								"{{url_post}}"
+							],
+							"path": [
+								"posts",
+								"{{post_id}}",
+								"likes",
+								"count"
 							]
 						}
 					},
@@ -196,8 +462,13 @@
 			"type": "string"
 		},
 		{
+			"key": "url_post",
+			"value": "http://localhost:8083",
+			"type": "string"
+		},
+		{
 			"key": "JWT",
-			"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImZlNjVjY2I4ZWFkMGJhZWY1ZmQzNjE5NWQ2NTI4YTA1NGZiYjc2ZjMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdXBzZ2xhbSIsImF1ZCI6InVwc2dsYW0iLCJhdXRoX3RpbWUiOjE3NDc5ODMzMTUsInVzZXJfaWQiOiJqRFdDbXNFTDFsY2xDR3RjY3VWc3Q2eFdhUXQyIiwic3ViIjoiakRXQ21zRUwxbGNsQ0d0Y2N1VnN0NnhXYVF0MiIsImlhdCI6MTc0Nzk4MzMxNSwiZXhwIjoxNzQ3OTg2OTE1LCJlbWFpbCI6InNhbXVlbHBhcmRvMTk5N0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsic2FtdWVscGFyZG8xOTk3QGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.DWm-CT0ggcDjKG522qigwDRYvTo5AD5bEJ5SvtoAoQFC4sWYh4gTAf5YMjTghzgu_Hy-XrFGcUZy2RsM9jbbVYP7k3-97e_yF5y8JevktMs8ar96T1Fm2_J53GpG3UZneRZwo9mPZZpn0lCkJnQ58u3YNhz5YryCZhL7Afs1ZMZ6YwHYqPRbOtUEcY0rqQCFeHeK_DRf-zFC9QMwGQVHY1C8WK9e3eFXTCGxMGttG5yxVV56L9QhvrHmjLnHtwkUK0eEA3XfEryL8Iq1IAljz0Kc-HlotDpHroibsPEkAazGVSQwyLBa4sbC0qlhFfbQFGZwKKr2K2UBvRoxJNy_8g",
+			"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImZlNjVjY2I4ZWFkMGJhZWY1ZmQzNjE5NWQ2NTI4YTA1NGZiYjc2ZjMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdXBzZ2xhbSIsImF1ZCI6InVwc2dsYW0iLCJhdXRoX3RpbWUiOjE3NDgwNjE1NjEsInVzZXJfaWQiOiJqRFdDbXNFTDFsY2xDR3RjY3VWc3Q2eFdhUXQyIiwic3ViIjoiakRXQ21zRUwxbGNsQ0d0Y2N1VnN0NnhXYVF0MiIsImlhdCI6MTc0ODA2MTU2MSwiZXhwIjoxNzQ4MDY1MTYxLCJlbWFpbCI6InNhbXVlbHBhcmRvMTk5N0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsic2FtdWVscGFyZG8xOTk3QGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.JZ0MpMie_rSLjOnbFBXScKiPhnSQlcl1MTze0tadkYvDX4iYcAs-i2u8hIgSGnAx9i1t9DuoNfTp2SK5yIML4GBVIQMfJ6WNQBOcqbyFHTMp-3qcY1I-n8E0UiejUz3CrAHim7BmKQxgJx7nrOfD1fnLX3IH1-hfN_OK7W3b4uQgzMxDLPpCC_wQjZ9C_vaRvsZMRbZ8gagYnwOE7TlzLsDQ5p-3mxC6GPA2Tglgz_uX0JvL-SQ9hpIqlzIV4mL4ipZNoOlF0wJ2zBqV46GhzjsUlDFtDgWJrgF-ripkf6K5kobj1JO7CSFt0KMcQIXSg_JDzlVFwMO-koCdAoiACw",
 			"type": "string"
 		},
 		{
