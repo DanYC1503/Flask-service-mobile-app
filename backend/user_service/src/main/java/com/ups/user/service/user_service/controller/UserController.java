@@ -35,6 +35,7 @@ public class UserController {
 
     @PostMapping
     public Mono<ResponseEntity<UserProfile>> createUser(@RequestBody UserProfileDTO dto) {
+        System.out.println("📥 [User-Service] Register endpoint hit with user: " + dto.getEmail());
         return userService.createUser(dto)
                 .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(user));
     }

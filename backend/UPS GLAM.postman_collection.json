@@ -7,49 +7,6 @@
 	},
 	"item": [
 		{
-			"name": "Auth",
-			"item": [
-				{
-					"name": "Verify-token",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{JWT}}",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "{{content_type}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url_auth}}/auth/verify-token",
-							"host": [
-								"{{url_auth}}"
-							],
-							"path": [
-								"auth",
-								"verify-token"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
 			"name": "User",
 			"item": [
 				{
@@ -426,6 +383,629 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Image",
+			"item": [
+				{
+					"name": "Upload Image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url_image}}/upload/{{post_id}}",
+							"host": [
+								"{{url_image}}"
+							],
+							"path": [
+								"upload",
+								"{{post_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "API",
+			"item": [
+				{
+					"name": "User",
+					"item": [
+						{
+							"name": "Create User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"samuelpardo1997@gmail.com\",\n    \"userName\": \"samupardo\",\n    \"displayName\": \"Samuel Pardo\",\n    \"bio\": \"dev\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url_api}}/users",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get User",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/users/{{user_uid}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"users",
+										"{{user_uid}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update User",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userName\": \"ElGat02\",\n  \"email\": \"jsalazr@gmail.com\",\n  \"displayName\": \"Jairo Salazar\",\n  \"bio\": \"user\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url_api}}/users/{{user_uid}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"users",
+										"{{user_uid}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Users",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/users",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete User",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/users/{{user_uid}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"users",
+										"{{user_uid}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Post",
+					"item": [
+						{
+							"name": "Create Post",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"Mi segunda publicación\",\n  \"content\": \"Este es el contenido.\",\n  \"authorId\": \"5fc19fa5-0bad-4260-b0d0-092e706341c1\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url_api}}/posts",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Posts",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/posts",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Post",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/posts/{{id}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Post",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"Mi CUARTA publicación\",\n  \"content\": \"Este es el contenido 444.\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url_api}}/posts/{{id}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Post",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/posts/{{id}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Comment",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userId\": \"5fc19fa5-0bad-4260-b0d0-092e706341c1\",\n    \"content\": \"Esto es el comentario del GATO\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url_api}}/posts/{{post_id}}/comments",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts",
+										"{{post_id}}",
+										"comments"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Comments",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/posts/{{post_id}}/comments",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts",
+										"{{post_id}}",
+										"comments"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Comment",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/posts/{{post_id}}/comments/{{comment_id}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts",
+										"{{post_id}}",
+										"comments",
+										"{{comment_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Comment",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"content\": \"ESTO ES UN COMENTARIO CAMBIADO\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url_api}}/posts/{{post_id}}/comments/{{comment_id}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts",
+										"{{post_id}}",
+										"comments",
+										"{{comment_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Like",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/posts/{{post_id}}/likes/{{user_id}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts",
+										"{{post_id}}",
+										"likes",
+										"{{user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove Like",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/posts/{{post_id}}/likes/{{user_id}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts",
+										"{{post_id}}",
+										"likes",
+										"{{user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Count Likes",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/posts/{{post_id}}/likes/count",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"posts",
+										"{{post_id}}",
+										"likes",
+										"count"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Image",
+					"item": [
+						{
+							"name": "Upload Image",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url_api}}/upload/{{post_id}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"upload",
+										"{{post_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Image",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/upload/{{post_id}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"upload",
+										"{{post_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Image",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{JWT}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url_api}}/upload/{{post_id}}",
+									"host": [
+										"{{url_api}}"
+									],
+									"path": [
+										"upload",
+										"{{post_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url_api}}/actuator/health",
+							"host": [
+								"{{url_api}}"
+							],
+							"path": [
+								"actuator",
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -452,33 +1032,28 @@
 	],
 	"variable": [
 		{
-			"key": "url_auth",
-			"value": "http://localhost:8081",
+			"key": "url_api",
+			"value": "http://localhost:8080",
 			"type": "string"
 		},
 		{
 			"key": "url_user",
-			"value": "http://localhost:8082",
+			"value": "http://localhost:8081",
 			"type": "string"
 		},
 		{
 			"key": "url_post",
+			"value": "http://localhost:8082",
+			"type": "string"
+		},
+		{
+			"key": "url_image",
 			"value": "http://localhost:8083",
 			"type": "string"
 		},
 		{
 			"key": "JWT",
-			"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImZlNjVjY2I4ZWFkMGJhZWY1ZmQzNjE5NWQ2NTI4YTA1NGZiYjc2ZjMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdXBzZ2xhbSIsImF1ZCI6InVwc2dsYW0iLCJhdXRoX3RpbWUiOjE3NDgwNjE1NjEsInVzZXJfaWQiOiJqRFdDbXNFTDFsY2xDR3RjY3VWc3Q2eFdhUXQyIiwic3ViIjoiakRXQ21zRUwxbGNsQ0d0Y2N1VnN0NnhXYVF0MiIsImlhdCI6MTc0ODA2MTU2MSwiZXhwIjoxNzQ4MDY1MTYxLCJlbWFpbCI6InNhbXVlbHBhcmRvMTk5N0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsic2FtdWVscGFyZG8xOTk3QGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.JZ0MpMie_rSLjOnbFBXScKiPhnSQlcl1MTze0tadkYvDX4iYcAs-i2u8hIgSGnAx9i1t9DuoNfTp2SK5yIML4GBVIQMfJ6WNQBOcqbyFHTMp-3qcY1I-n8E0UiejUz3CrAHim7BmKQxgJx7nrOfD1fnLX3IH1-hfN_OK7W3b4uQgzMxDLPpCC_wQjZ9C_vaRvsZMRbZ8gagYnwOE7TlzLsDQ5p-3mxC6GPA2Tglgz_uX0JvL-SQ9hpIqlzIV4mL4ipZNoOlF0wJ2zBqV46GhzjsUlDFtDgWJrgF-ripkf6K5kobj1JO7CSFt0KMcQIXSg_JDzlVFwMO-koCdAoiACw",
-			"type": "string"
-		},
-		{
-			"key": "user_uid",
-			"value": "abcd1234",
-			"type": "string"
-		},
-		{
-			"key": "content_type",
-			"value": "application/json",
+			"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImZlNjVjY2I4ZWFkMGJhZWY1ZmQzNjE5NWQ2NTI4YTA1NGZiYjc2ZjMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdXBzZ2xhbSIsImF1ZCI6InVwc2dsYW0iLCJhdXRoX3RpbWUiOjE3NDgxMzc2NTEsInVzZXJfaWQiOiJqRFdDbXNFTDFsY2xDR3RjY3VWc3Q2eFdhUXQyIiwic3ViIjoiakRXQ21zRUwxbGNsQ0d0Y2N1VnN0NnhXYVF0MiIsImlhdCI6MTc0ODEzNzY1MSwiZXhwIjoxNzQ4MTQxMjUxLCJlbWFpbCI6InNhbXVlbHBhcmRvMTk5N0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsic2FtdWVscGFyZG8xOTk3QGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.nmcK_JJwJaOuo57C1rXEkEViHscsASFnijUQ7nsEF6IoQDPLMsUSAq_TKzmB6uV38AqqcHZ2bGo9rs9S0Mf9XMirAHHPO8xOBrfnH_d1ZF5znUpF25ug6SktD4YfYox8ZBWgqKs3XBrir7yI274t2_csgtj11NlnYbyH77smId41ftRjWzllyS_iJ7BLrJcRBjH-7Nj-asChPwivTG4JEyzDNwoNIVGSoNb7LgI5dWxfwem0O0l1bsiYwGpcaNbTYu9iBPS3n4JsaSDayFslnGatNkDuDb7eG4DzMq79rKTiHiOxyuP6Td2DsBYGQN0--NKO2knLoEDWVoUu94IITA",
 			"type": "string"
 		}
 	]

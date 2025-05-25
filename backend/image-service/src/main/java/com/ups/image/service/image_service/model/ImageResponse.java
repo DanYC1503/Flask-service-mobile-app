@@ -1,4 +1,4 @@
-package com.ups.auth.service.auth_service.dto;
+package com.ups.image.service.image_service.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Response<T> {
-    private int status;
-    private String message;
-    private T data;
+public class ImageResponse {
+    private String url;
 }
