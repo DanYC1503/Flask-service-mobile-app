@@ -1,22 +1,22 @@
 # Usamos la imagen oficial NVIDIA CUDA con cuDNN sobre Ubuntu 20.04
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu20.04
+FROM nvidia/cuda:12.6.3-cudnn-devel-ubuntu20.04
 
 # Evitamos prompts interactivos
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 1) Actualizamos e instalamos Python y dependencias de sistema
+# 1) Actualizamos e instalamos Python y dependencias de sistema (con paquetes recomendados)
 RUN apt-get update -qq && \
-    apt-get install -y --no-install-recommends \
+    apt-get install -y \
     python3 python3-pip python3-dev \
     build-essential \
-    libjpeg-dev libpng-dev && \
-    rm -rf /var/lib/apt/lists/*
+    libjpeg-dev libpng-dev \
+    libgl1-mesa-glx libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
 
 # 2) Copiamos el requirements y los instalamos
 WORKDIR /app
 COPY requirements.txt /app/requirements.txt
-RUN pip3 install --upgrade pip && \
-    pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # 3) Copiamos el código de la aplicación
 COPY . /app

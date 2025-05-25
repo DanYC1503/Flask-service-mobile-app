@@ -9,6 +9,8 @@ from filter_scripts.pycuda_ink import process_image_ink_filter
 from filter_scripts.pycuda_don_bosco import process_image_background, load_image, resize_to_match, get_person_mask
 from PIL import Image
 import numpy as np
+import base64
+from io import BytesIO
 import mediapipe as mp
 
 UPLOAD_FOLDER = 'static/uploads'
@@ -89,15 +91,34 @@ def process():
     except Exception as e:
         return jsonify({'error': f'Error al procesar imagen: {str(e)}'}), 500
 
-    # Guardar imagen procesada
+    external_output_dir = r"C:\Users\danie\OneDrive\Pictures\flask_filtro"
+    os.makedirs(external_output_dir, exist_ok=True)
+
     path_out = os.path.join(app.config['UPLOAD_FOLDER'], out_name)
     Image.fromarray(result_np).save(path_out)
 
+    # Also save to your OneDrive directory
+    external_path = os.path.join(external_output_dir, out_name)
+    Image.fromarray(result_np).save(external_path)
+
+    # Generate base64 string
+    img_base64 = image_to_json(result_np)
+
+    # Return JSON
     return jsonify({
         'input_image_url': f"/static/uploads/{filename}",
-        'output_image_url': f"/static/uploads/{out_name}",
+        'output_image_url': os.path.join(external_output_dir, out_name), 
+        'external_image_path': external_path,               
+        'output_image_base64': img_base64,
         'stats': stats
     }), 200
+
+def image_to_json(result_np):
+    img_io = BytesIO()
+    Image.fromarray(result_np).save(img_io, format='JPEG')
+    img_io.seek(0)
+    img_base64 = base64.b64encode(img_io.read()).decode('utf-8')
+    return img_base64
 
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
