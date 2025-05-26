@@ -1,5 +1,6 @@
 package com.example.ui_filter_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -57,7 +58,8 @@ public class RegisterActivity extends AppCompatActivity {
                                     .addOnSuccessListener(result -> {
                                         String jwt = result.getToken();
                                         // Ahora registramos al usuario en el backend
-                                        UserProfileDTO user = new UserProfileDTO(email, username, displayName, bio);
+                                        String uid = firebaseUser.getUid();
+                                        UserProfileDTO user = new UserProfileDTO(uid, email, username, displayName, bio);
 
                                         UserServiceAPI api = RetrofitClient.getClient().create(UserServiceAPI.class);
                                         Call<UserProfileDTO> call = api.registerUser(user); // Si tu backend requiere token, deberías pasarlo en headers
@@ -88,7 +90,9 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         goToLogin.setOnClickListener(v -> {
-            // Puedes redirigir a LoginActivity aquí
+            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            finish();
         });
+
     }
 }
