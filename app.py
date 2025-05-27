@@ -71,7 +71,7 @@ def process():
             result_np, stats = process_image_ink_filter(img_np, mask_size, **gpu_config)
             out_name = f"ink_gpu.jpg"
         elif method == 'back':
-            bg_np = load_image("static/BackGrounds/background.jpg")
+            bg_np = load_image("static/BackGrounds/background.jpeg")
             bg_np = resize_to_match(bg_np, img_np.shape)
             mask_np = get_person_mask(img_np)
             result_np, stats = process_image_background(img_np, mask_np, bg_np)

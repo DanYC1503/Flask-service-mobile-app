@@ -12,35 +12,21 @@ def load_image(path):
     img = Image.open(path).convert("RGB")
     return np.array(img)
 
-def resize_to_match(bg_img, target_shape, max_scale=4):
+def resize_to_match(bg_img, target_shape):
     target_h, target_w = target_shape[:2]
-    bg_h, bg_w = bg_img.shape[:2]
+    desired_w, desired_h = 1080, 720  # tamaño fijo para el background
 
-    # Calculate scale factors for width and height
-    scale_w = bg_w / target_w
-    scale_h = bg_h / target_h
+    # Resize background siempre a 1080x720
+    resized_bg = Image.fromarray(bg_img).resize((desired_w, desired_h), Image.LANCZOS)
+    resized_bg_np = np.array(resized_bg)
 
-    # If background is more than max_scale times bigger, resize it down
-    if scale_w > max_scale or scale_h > max_scale:
-        # Compute new size limited by max_scale times the target size
-        new_w = min(bg_w, target_w * max_scale)
-        new_h = min(bg_h, target_h * max_scale)
+    # Recortar al centro si es más grande que el target
+    if resized_bg_np.shape[0] > target_h or resized_bg_np.shape[1] > target_w:
+        start_y = max((resized_bg_np.shape[0] - target_h) // 2, 0)
+        start_x = max((resized_bg_np.shape[1] - target_w) // 2, 0)
+        resized_bg_np = resized_bg_np[start_y:start_y+target_h, start_x:start_x+target_w]
 
-        # Resize background to new size (width, height)
-        resized_bg = Image.fromarray(bg_img).resize((int(new_w), int(new_h)), Image.LANCZOS)
-
-        # If resized background is still bigger than target, crop center
-        resized_bg_np = np.array(resized_bg)
-        if resized_bg_np.shape[0] > target_h or resized_bg_np.shape[1] > target_w:
-            # Crop to target size centered
-            start_y = (resized_bg_np.shape[0] - target_h) // 2
-            start_x = (resized_bg_np.shape[1] - target_w) // 2
-            resized_bg_np = resized_bg_np[start_y:start_y+target_h, start_x:start_x+target_w]
-        return resized_bg_np
-    else:
-        # Background size is OK, just resize exactly to target (you can keep aspect ratio if you want)
-        return np.array(Image.fromarray(bg_img).resize((target_w, target_h), Image.LANCZOS))
-
+    return resized_bg_np
 
 def get_person_mask(image_np):
     mp_selfie = mp.solutions.selfie_segmentation
