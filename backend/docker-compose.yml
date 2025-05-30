@@ -1,34 +1,75 @@
-version: "3.8"
+version: "3.9"
+
 services:
   api-gateway:
-    build: ./api_gateway
+    image: api-gateway
     ports:
       - "8080:8080"
     depends_on:
-      - auth-service
       - post-service
       - image-service
     networks:
       - upsnet
 
-  auth-service:
-    build: ./auth_service
-    ports:
-      - "8081:8081"
-    networks:
-      - upsnet
-
   post-service:
-    build: ./post_service
+    image: post-service
     ports:
       - "8082:8082"
     networks:
       - upsnet
 
-  image-service:
-    build: ./image_service
+  image-service:   # Your Spring Boot backend
+    image: image-service
+    depends_on:
+      - flask-filter-1
+      - flask-filter-2
+      - flask-filter-3
     ports:
       - "8083:8083"
+    networks:
+      - upsnet
+    environment:
+      - FLASK_SERVICES=http://flask-filter-1:5000/process,http://flask-filter-2:5000/process,http://flask-filter-3:5000/process
+
+  flask-filter-1:
+    image: flask-filter-service
+    container_name: flask-filter-1
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ports:
+      - "5000:5000"
+    networks:
+      - upsnet
+
+  flask-filter-2:
+    image: flask-filter-service
+    container_name: flask-filter-2
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ports:
+      - "5001:5000"
+    networks:
+      - upsnet
+
+  flask-filter-3:
+    image: flask-filter-service
+    container_name: flask-filter-3
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ports:
+      - "5002:5000"
     networks:
       - upsnet
 

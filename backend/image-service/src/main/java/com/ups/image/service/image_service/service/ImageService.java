@@ -2,29 +2,39 @@ package com.ups.image.service.image_service.service;
 
 import jakarta.annotation.PostConstruct;
 
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
+import com.google.api.client.util.Value;
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
-import com.google.cloud.storage.BlobInfo;
+
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
-
+import org.springframework.http.MediaType;
 import java.net.URL;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class ImageService {
 
     private final Storage storage;
+    private final WebClient webClient;
     private Bucket bucket;
+    private final AtomicInteger counter = new AtomicInteger(0);
+    @Value("${FLASK_SERVICES}")
+    private String flaskServices;
 
-    public ImageService(Storage storage) {
+    private String[] flaskUrls;
+
+    public ImageService(Storage storage, WebClient.Builder builder) {
         this.storage = storage;
+        this.webClient = builder.build();
     }
 
     @PostConstruct
@@ -33,7 +43,55 @@ public class ImageService {
         if (bucket == null) {
             throw new RuntimeException("No se pudo obtener el bucket: " + "upsglam.firebasestorage.app");
         }
+        this.flaskUrls = flaskServices.split(",");
     }
+    private String getNextFlaskUrl() {
+        int index = counter.getAndUpdate(i -> (i + 1) % flaskUrls.length);
+        return flaskUrls[index];
+    }
+
+    public Mono<String> processAndUploadImage(FilePart filePart, String postId, String method, Integer maskSize) {
+        return DataBufferUtils.join(filePart.content())
+            .flatMap(dataBuffer -> {
+                byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                dataBuffer.read(bytes);
+                DataBufferUtils.release(dataBuffer);
+                return sendToFlask(bytes, filePart.filename(), method, maskSize);
+            })
+            .flatMap(filteredBytes -> {
+                String fileName = UUID.randomUUID().toString() + "-" + filePart.filename();
+                String path = String.format("images/posts/%s/%s", postId, fileName);
+
+                bucket.create(path, filteredBytes, "image/png");
+
+                URL signedUrl = storage.signUrl(
+                    BlobInfo.newBuilder(bucket.getName(), path).build(),
+                    1, TimeUnit.HOURS,
+                    Storage.SignUrlOption.withV4Signature()
+                );
+
+                return Mono.just(signedUrl.toString());
+            });
+    }
+
+    private Mono<byte[]> sendToFlask(byte[] imageBytes, String filename, String method, Integer maskSize) {
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        builder.part("image", imageBytes)
+               .filename(filename)
+               .contentType(MediaType.APPLICATION_OCTET_STREAM);
+        builder.part("method", method);
+        builder.part("mask_size", maskSize);
+
+        String flaskUrl = getNextFlaskUrl();
+
+        return webClient.post()
+            .uri(flaskUrl)
+            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .body(BodyInserters.fromMultipartData(builder.build()))
+            .retrieve()
+            .bodyToMono(byte[].class);
+    }
+
 
     public Mono<String> uploadImage(FilePart filePart, String postId) {
         return DataBufferUtils.join(filePart.content())

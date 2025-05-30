@@ -36,4 +36,12 @@ public class ImageController {
                 .then(Mono.just(ResponseEntity.noContent().build()))
                 .onErrorResume(e -> Mono.just(ResponseEntity.notFound().build()));
     }
+    @PostMapping(value = "/process/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<String> processImage(@PathVariable String postId,
+                                    @RequestPart("file") FilePart filePart,
+                                    @RequestPart("method") String method,
+                                    @RequestPart("mask_size") Integer maskSize) {
+        return imageService.processAndUploadImage(filePart, postId, method, maskSize);
+    }
+
 }
