@@ -1,6 +1,7 @@
 package com.ups.user.service.user_service.service;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.ups.user.service.user_service.dto.UserProfileDTO;
 import com.ups.user.service.user_service.model.UserProfile;
@@ -59,17 +60,36 @@ public class UserService {
 
     public Mono<UserProfile> updateUser(String uid, UserProfileDTO dto) {
         return repository.findById(uid)
-                .flatMap(existingUser -> {
-                    existingUser.setEmail(dto.getEmail());
-                    existingUser.setUserName(dto.getUserName());
-                    existingUser.setDisplayName(dto.getDisplayName());
-                    existingUser.setBio(dto.getBio());
-                    return repository.update(existingUser);
-                });
-    }
+            .flatMap(existingUser -> {
+                existingUser.setEmail(dto.getEmail());
+                existingUser.setUserName(dto.getUserName());
+                existingUser.setDisplayName(dto.getDisplayName());
+                existingUser.setBio(dto.getBio());
+
+                // Actualizar en Firebase Auth
+                return Mono.fromCallable(() -> {
+                    UserRecord.UpdateRequest request = new UserRecord.UpdateRequest(uid)
+                            .setEmail(dto.getEmail())
+                            .setDisplayName(dto.getDisplayName());
+                    // Solo actualiza la contraseña si viene en el DTO
+                    if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+                        request.setPassword(dto.getPassword());
+                    }
+                    firebaseAuth.updateUser(request);
+                    return existingUser;
+                })
+                .flatMap(user -> repository.update(user));
+            })
+            .subscribeOn(Schedulers.boundedElastic());
+    }   
 
     public Mono<Void> deleteUser(String uid) {
-        return repository.deleteById(uid);
+        return Mono.fromCallable(() -> {
+            firebaseAuth.deleteUser(uid);
+            return true;
+        })
+        .flatMap(deleted -> repository.deleteById(uid))
+        .subscribeOn(Schedulers.boundedElastic());
     }
 
     public Flux<UserProfile> getAllUsers() {
