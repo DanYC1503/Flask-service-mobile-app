@@ -1,2 +1,6 @@
 .vscode/
 .venv
+backend/post-service/*.jar
+backend/image-service/*.jar
+backend/user_service/*.jar
+backend/api-gateway/*.jar
