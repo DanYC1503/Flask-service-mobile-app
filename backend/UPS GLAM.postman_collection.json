@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"samuelpardo1997@gmail.com\",\n    \"userName\": \"samupardo\",\n    \"displayName\": \"Samuel Pardo\",\n    \"bio\": \"dev\"\n}\n",
+							"raw": "{\n    \"email\": \"samuelpardo1997@gmail.com\",\n    \"password\": \"1234abcd\",\n    \"userName\": \"samupardo\",\n    \"displayName\": \"Samuel Pardo\",\n    \"bio\": \"dev\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -24,12 +24,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url_user}}/users",
+							"raw": "{{url_user}}/users/register",
 							"host": [
 								"{{url_user}}"
 							],
 							"path": [
-								"users"
+								"users",
+								"register"
 							]
 						}
 					},
@@ -436,7 +437,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"email\": \"samuelpardo1997@gmail.com\",\n    \"userName\": \"samupardo\",\n    \"displayName\": \"Samuel Pardo\",\n    \"bio\": \"dev\"\n}\n",
+									"raw": "{\n    \"email\": \"samuelpardo1997@gmail.com\",\n    \"password\": \"1234abcd\",\n    \"userName\": \"samupardo\",\n    \"displayName\": \"Samuel Pardo\",\n    \"bio\": \"dev\"\n}\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -444,12 +445,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{url_api}}/users",
+									"raw": "{{url_api}}/users/register",
 									"host": [
 										"{{url_api}}"
 									],
 									"path": [
-										"users"
+										"users",
+										"register"
 									]
 								}
 							},
@@ -1053,7 +1055,7 @@
 		},
 		{
 			"key": "JWT",
-			"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImZlNjVjY2I4ZWFkMGJhZWY1ZmQzNjE5NWQ2NTI4YTA1NGZiYjc2ZjMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdXBzZ2xhbSIsImF1ZCI6InVwc2dsYW0iLCJhdXRoX3RpbWUiOjE3NDgxMzc2NTEsInVzZXJfaWQiOiJqRFdDbXNFTDFsY2xDR3RjY3VWc3Q2eFdhUXQyIiwic3ViIjoiakRXQ21zRUwxbGNsQ0d0Y2N1VnN0NnhXYVF0MiIsImlhdCI6MTc0ODEzNzY1MSwiZXhwIjoxNzQ4MTQxMjUxLCJlbWFpbCI6InNhbXVlbHBhcmRvMTk5N0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsic2FtdWVscGFyZG8xOTk3QGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.nmcK_JJwJaOuo57C1rXEkEViHscsASFnijUQ7nsEF6IoQDPLMsUSAq_TKzmB6uV38AqqcHZ2bGo9rs9S0Mf9XMirAHHPO8xOBrfnH_d1ZF5znUpF25ug6SktD4YfYox8ZBWgqKs3XBrir7yI274t2_csgtj11NlnYbyH77smId41ftRjWzllyS_iJ7BLrJcRBjH-7Nj-asChPwivTG4JEyzDNwoNIVGSoNb7LgI5dWxfwem0O0l1bsiYwGpcaNbTYu9iBPS3n4JsaSDayFslnGatNkDuDb7eG4DzMq79rKTiHiOxyuP6Td2DsBYGQN0--NKO2knLoEDWVoUu94IITA",
+			"value": "Bearer ",
 			"type": "string"
 		}
 	]

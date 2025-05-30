@@ -33,11 +33,11 @@ public class UserController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public Mono<ResponseEntity<UserProfile>> createUser(@RequestBody UserProfileDTO dto) {
-        System.out.println("📥 [User-Service] Register endpoint hit with user: " + dto.getEmail());
-        return userService.createUser(dto)
-                .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(user));
+    @PostMapping("/register")
+    public Mono<ResponseEntity<UserProfile>> register(@RequestBody UserProfileDTO dto) {
+        return userService.registerUser(dto)
+            .map(user -> ResponseEntity.ok(user))
+            .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{uid}")
