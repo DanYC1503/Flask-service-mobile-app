@@ -20,7 +20,8 @@
         <!-- Registro -->
         <activity
             android:name=".RegisterActivity"
-            android:exported="false" />
+            android:exported="false" 
+            android:windowSoftInputMode="adjustPan" />
 
         <!-- Login -->
         <activity

@@ -3,7 +3,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login_image"
+    android:background="@drawable/register_image"
     android:padding="32dp">
 
     <LinearLayout
@@ -16,11 +16,11 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_marginBottom="24dp"
-            android:contentDescription="Logo"
-            android:src="@drawable/ic_launcher_foreground2"
             android:background="@drawable/circle_shape"
+            android:clipToOutline="true"
+            android:contentDescription="Logo"
             android:scaleType="centerCrop"
-            android:clipToOutline="true" />
+            android:src="@drawable/ic_launcher_foreground2" />
 
 
         <EditText
@@ -31,6 +31,7 @@
             android:hint="Nombre de usuario"
             android:inputType="text"
             android:padding="12dp"
+            android:textColor="#212121"
             android:textColorHint="#757575" />
 
         <EditText
@@ -42,6 +43,7 @@
             android:hint="Correo electrónico"
             android:inputType="textEmailAddress"
             android:padding="12dp"
+            android:textColor="#212121"
             android:textColorHint="#757575" />
 
         <EditText
@@ -53,6 +55,7 @@
             android:hint="Nombre a mostrar"
             android:inputType="text"
             android:padding="12dp"
+            android:textColor="#212121"
             android:textColorHint="#757575" />
 
         <EditText
@@ -65,6 +68,7 @@
             android:inputType="textMultiLine"
             android:minLines="2"
             android:padding="12dp"
+            android:textColor="#212121"
             android:textColorHint="#757575" />
 
         <EditText
@@ -76,7 +80,8 @@
             android:hint="Contraseña"
             android:inputType="textPassword"
             android:padding="12dp"
-            android:textColorHint="#757575"/>
+            android:textColor="#212121"
+            android:textColorHint="#757575" />
 
         <Button
             android:id="@+id/registerButton"
