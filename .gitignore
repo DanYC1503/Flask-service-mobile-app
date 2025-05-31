@@ -5,5 +5,5 @@ backend/image-service/*.jar
 backend/user_service/*.jar
 backend/api-gateway/*.jar
 static/uploads
-UI_Filter_APP/app/google-services.json
+UI_Filter_APP\app\google-services.json
 UI_Filter_APP/.cxx/
