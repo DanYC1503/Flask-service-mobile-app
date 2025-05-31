@@ -3,71 +3,80 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="32dp"
-    android:background="#FFFFFF">
+    android:background="@drawable/login_image"
+    android:padding="32dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <ImageView
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:src="@drawable/ic_launcher_foreground2"
             android:layout_marginBottom="24dp"
-            android:contentDescription="Logo" />
+            android:contentDescription="Logo"
+            android:src="@drawable/ic_launcher_foreground2"
+            android:background="@drawable/circle_shape"
+            android:scaleType="centerCrop"
+            android:clipToOutline="true" />
+
 
         <EditText
             android:id="@+id/usernameRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/edittext_background"
             android:hint="Nombre de usuario"
             android:inputType="text"
             android:padding="12dp"
-            android:background="@drawable/edittext_background" />
+            android:textColorHint="#757575" />
 
         <EditText
             android:id="@+id/emailRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/edittext_background"
             android:hint="Correo electrónico"
             android:inputType="textEmailAddress"
             android:padding="12dp"
-            android:background="@drawable/edittext_background"
-            android:layout_marginTop="12dp" />
+            android:textColorHint="#757575" />
 
         <EditText
             android:id="@+id/displayNameRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/edittext_background"
             android:hint="Nombre a mostrar"
             android:inputType="text"
             android:padding="12dp"
-            android:background="@drawable/edittext_background"
-            android:layout_marginTop="12dp" />
+            android:textColorHint="#757575" />
 
         <EditText
             android:id="@+id/bioRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/edittext_background"
             android:hint="Biografía (opcional)"
             android:inputType="textMultiLine"
-            android:padding="12dp"
             android:minLines="2"
-            android:background="@drawable/edittext_background"
-            android:layout_marginTop="12dp" />
+            android:padding="12dp"
+            android:textColorHint="#757575" />
 
         <EditText
             android:id="@+id/passwordRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/edittext_background"
             android:hint="Contraseña"
             android:inputType="textPassword"
             android:padding="12dp"
-            android:background="@drawable/edittext_background"
-            android:layout_marginTop="12dp" />
+            android:textColorHint="#757575"/>
 
         <Button
             android:id="@+id/registerButton"
@@ -82,11 +91,10 @@
             android:id="@+id/goToLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="¿Ya tienes una cuenta? Inicia sesión"
             android:textColor="#2196F3"
-            android:layout_marginTop="16dp"
             android:textStyle="bold" />
-
 
 
     </LinearLayout>
