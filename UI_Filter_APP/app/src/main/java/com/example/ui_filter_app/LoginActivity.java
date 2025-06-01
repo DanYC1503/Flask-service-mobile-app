@@ -2,6 +2,7 @@ package com.example.ui_filter_app;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -11,6 +12,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -19,68 +23,65 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
-
     private EditText emailField, passwordField;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // Inicializa Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
         emailField = findViewById(R.id.emailLogin);
         passwordField = findViewById(R.id.passwordLogin);
         Button loginButton = findViewById(R.id.loginButton);
         TextView goToRegister = findViewById(R.id.goToRegister);
 
-        loginButton.setOnClickListener(view -> {
-            String email = emailField.getText().toString().trim();
-            String password = passwordField.getText().toString().trim();
-
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            UserServiceAPI api = RetrofitClient.getClient().create(UserServiceAPI.class);
-            Call<List<UserProfileDTO>> call = api.getAllUsers();
-
-            call.enqueue(new Callback<List<UserProfileDTO>>() {
-                @Override
-                public void onResponse(Call<List<UserProfileDTO>> call, Response<List<UserProfileDTO>> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        List<UserProfileDTO> users = response.body();
-                        boolean found = false;
-
-                        for (UserProfileDTO user : users) {
-                            if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
-                                found = true;
-                                Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
-                                finish();
-                                break;
-                            }
-                        }
-
-                        if (!found) {
-                            Toast.makeText(LoginActivity.this, "Credenciales incorrectas", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(LoginActivity.this, "Error al obtener usuarios", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<List<UserProfileDTO>> call, Throwable t) {
-                    Toast.makeText(LoginActivity.this, "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
-
+        loginButton.setOnClickListener(v -> loginWithFirebase());
         goToRegister.setOnClickListener(v -> {
-            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            startActivity(new Intent(this, RegisterActivity.class));
             finish();
         });
+    }
+
+    private void loginWithFirebase() {
+        String email = emailField.getText().toString().trim();
+        String password = passwordField.getText().toString().trim();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Complete todos los campos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Obtiene el token JWT oficial
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        user.getIdToken(true)
+                                .addOnCompleteListener(tokenTask -> {
+                                    if (tokenTask.isSuccessful()) {
+                                        String token = tokenTask.getResult().getToken();
+                                        saveFirebaseToken(token);
+                                        startActivity(new Intent(this, MainActivity.class));
+                                        finish();
+                                    } else {
+                                        Toast.makeText(this, "Error al obtener token", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(this, "Autenticación fallida", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void saveFirebaseToken(String token) {
+        SharedPreferences prefs = getSharedPreferences("app_session", MODE_PRIVATE);
+        prefs.edit()
+                .putString("firebase_token", token)
+                .putBoolean("is_logged", true)
+                .apply();
     }
 }

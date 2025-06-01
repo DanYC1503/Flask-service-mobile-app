@@ -9,7 +9,14 @@ public class UserProfileDTO {
     private String bio;
     private String password;
 
-    // ✅ Constructor requerido
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+// ✅ Constructor requerido
 
     public UserProfileDTO(String uid,String email, String userName, String displayName, String bio, String password) {
         this.uid = uid;

@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        api = RetrofitClient.getClient().create(UserServiceAPI.class);
+        api = RetrofitClient.getClient(MainActivity.this).create(UserServiceAPI.class);
 
         // Por defecto mostramos perfil (puedes cambiarlo si quieres mostrar lista primero)
         showPostsList();

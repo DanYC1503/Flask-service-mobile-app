@@ -1,26 +1,40 @@
 package com.example.ui_filter_app;
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.Context;
+
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static final String BASE_URL = "http://192.168.3.60:8080/";
-
+    private static final String BASE_URL = "http://192.168.3.62:8080/";
     private static Retrofit retrofit = null;
 
-    public static Retrofit getClient() {
+    public static Retrofit getClient(Context context) {
         if (retrofit == null) {
-            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .addInterceptor(interceptor)
-                    .build();
+            // Interceptor para añadir el token de Firebase
+            httpClient.addInterceptor(chain -> {
+                Request original = chain.request();
+                String token = context.getSharedPreferences("app_session", MODE_PRIVATE)
+                        .getString("firebase_token", null);
+
+                if (token != null) {
+                    Request newRequest = original.newBuilder()
+                            .header("Authorization", "Bearer " + token)
+                            .build();
+                    return chain.proceed(newRequest);
+                }
+                return chain.proceed(original);
+            });
 
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .client(client)
+                    .client(httpClient.build())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }

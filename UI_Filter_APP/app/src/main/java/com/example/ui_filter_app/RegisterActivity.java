@@ -51,7 +51,7 @@ public class RegisterActivity extends AppCompatActivity {
             UserProfileDTO user = new UserProfileDTO(null, email, username, displayName, bio, password);
 
             // ✅ Llamada al backend
-            UserServiceAPI api = RetrofitClient.getClient().create(UserServiceAPI.class);
+            UserServiceAPI api = RetrofitClient.getClient(this).create(UserServiceAPI.class);
             Call<UserProfileDTO> call = api.registerUser(user);
 
             call.enqueue(new Callback<UserProfileDTO>() {
