@@ -52,4 +52,5 @@ public class UserController {
         return userService.deleteUser(uid)
                 .thenReturn(ResponseEntity.noContent().<Void>build());
     }
+    
 }

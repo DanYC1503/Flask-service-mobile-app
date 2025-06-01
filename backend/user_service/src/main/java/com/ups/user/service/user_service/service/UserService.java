@@ -24,6 +24,8 @@ public class UserService {
         this.firebaseAuth = firebaseAuth;
     }
 
+    
+
     public Mono<UserProfile> registerUser(UserProfileDTO dto) {
         // 1. Crear en Firebase Auth
         return Mono.fromCallable(() -> {
@@ -91,6 +93,7 @@ public class UserService {
         .flatMap(deleted -> repository.deleteById(uid))
         .subscribeOn(Schedulers.boundedElastic());
     }
+    
 
     public Flux<UserProfile> getAllUsers() {
         return repository.findAll();

@@ -7,7 +7,6 @@ public class UserProfileDTO {
     private String userName;
     private String displayName;
     private String bio;
-
     private String password;
 
     // ✅ Constructor requerido
@@ -57,4 +56,7 @@ public class UserProfileDTO {
     public void setBio(String bio) {
         this.bio = bio;
     }
+
+    public String getPassword() { return password; } // ESTE ES EL QUE FALTA
+    public void setPassword(String password) { this.password = password; }
 }

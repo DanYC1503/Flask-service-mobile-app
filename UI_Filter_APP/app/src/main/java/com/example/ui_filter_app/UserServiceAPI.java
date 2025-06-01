@@ -31,4 +31,8 @@ public interface UserServiceAPI {
 
     @GET("/users")
     Call<List<UserProfileDTO>> getAllUsers(); // opcional, si quieres listar usuarios
+
+
+
+
 }
