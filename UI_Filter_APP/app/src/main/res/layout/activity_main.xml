@@ -52,6 +52,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:visibility="gone"
+            android:background="#F5F5F5"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
             app:layout_constraintStart_toStartOf="parent"
@@ -61,27 +62,53 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp"
-                android:background="#FAFAFA"
-                android:elevation="4dp"
-                android:layout_margin="8dp"
+                android:padding="24dp"
+                android:background="@android:color/white"
+                android:elevation="8dp"
+                android:layout_margin="16dp"
                 android:clipToPadding="false">
 
+                <!-- Encabezado del perfil -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingBottom="24dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mi Perfil"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:textColor="#212121"
+                        android:letterSpacing="0.02"/>
+
+                    <View
+                        android:layout_width="120dp"
+                        android:layout_height="2dp"
+                        android:background="#2196F3"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <!-- Sección de información -->
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Mi Perfil"
-                    android:textSize="24sp"
+                    android:text="Información personal"
+                    android:textSize="18sp"
+                    android:textColor="#424242"
                     android:textStyle="bold"
-                    android:textColor="#212121"
-                    android:layout_gravity="center_horizontal"
-                    android:paddingBottom="24dp" />
+                    android:layout_marginBottom="16dp"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Correo electrónico"
-                    android:layout_marginBottom="12dp">
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_marginBottom="16dp"
+                    android:paddingStart="4dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/emailField"
@@ -89,74 +116,103 @@
                         android:layout_height="wrap_content"
                         android:inputType="textEmailAddress"
                         android:enabled="false"
-                        android:textColor="#757575"/>
+                        android:textColor="#616161"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Nombre de usuario"
-                    android:layout_marginBottom="12dp">
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_marginBottom="16dp"
+                    android:paddingStart="4dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/usernameField"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:textColor="#616161"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Nombre a mostrar"
-                    android:layout_marginBottom="12dp">
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_marginBottom="16dp"
+                    android:paddingStart="4dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/displayNameField"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:textColor="#616161"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Biografía"
-                    android:layout_marginBottom="16dp">
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_marginBottom="24dp"
+                    android:paddingStart="4dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/bioField"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textMultiLine"
-                        android:minLines="3" />
+                        android:minLines="3"
+                        android:textColor="#616161"/>
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Sección de acciones -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Acciones de cuenta"
+                    android:textSize="18sp"
+                    android:textColor="#424242"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnUpdate"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:text="Actualizar perfil"
+                    style="@style/Widget.MaterialComponents.Button"
                     android:backgroundTint="#2196F3"
-                    android:textColor="#FFFFFF" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDelete"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Eliminar perfil"
-                    android:backgroundTint="#D32F2F"
-                    android:textColor="#FFFFFF"
-                    android:layout_marginTop="12dp" />
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="8dp"
+                    android:elevation="2dp"
+                    android:fontFamily="sans-serif-medium"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:text="Cerrar sesión"
-                    android:backgroundTint="#757575"
-                    android:textColor="#FFFFFF"
-                    android:layout_marginTop="12dp" />
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:textColor="#757575"
+                    android:layout_marginTop="12dp"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="#BDBDBD"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDelete"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="Eliminar cuenta"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:backgroundTint="#D32F2F"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="24dp"
+                    app:cornerRadius="8dp"
+                    android:elevation="2dp"
+                    android:fontFamily="sans-serif-medium"/>
             </LinearLayout>
         </ScrollView>
 

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">UI_Filter_APP</string>
+    <string name="profile_image_desc">Foto de perfil del usuario</string>
 </resources>
