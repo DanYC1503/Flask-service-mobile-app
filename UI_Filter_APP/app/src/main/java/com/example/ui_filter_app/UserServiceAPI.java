@@ -17,7 +17,7 @@ import java.util.List;
 import com.example.ui_filter_app.UserProfileDTO;
 
 public interface UserServiceAPI {
-    @POST("/users")
+    @POST("/users/register")
     Call<UserProfileDTO> registerUser(@Body UserProfileDTO user);
 
     @GET("/users/{uid}")

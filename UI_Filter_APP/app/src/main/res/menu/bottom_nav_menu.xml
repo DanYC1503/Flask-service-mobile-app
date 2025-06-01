@@ -14,10 +14,7 @@
         android:icon="@drawable/ic_add"
         android:title="Publicar" />
 
-    <item
-        android:id="@+id/nav_notifications"
-        android:icon="@drawable/ic_heart"
-        android:title="Notificaciones" />
+
 
     <item
         android:id="@+id/nav_profile"

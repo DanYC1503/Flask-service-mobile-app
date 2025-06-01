@@ -134,8 +134,9 @@ public class MainActivity extends AppCompatActivity {
         String username = usernameField.getText().toString().trim();
         String displayName = displayNameField.getText().toString().trim();
         String bio = bioField.getText().toString().trim();
+        String password = bioField.getText().toString().trim();
 
-        UserProfileDTO user = new UserProfileDTO(userId, email, username, displayName, bio);
+        UserProfileDTO user = new UserProfileDTO(userId, email, username, displayName, bio, password);
 
         api.updateUser(userId, user).enqueue(new Callback<UserProfileDTO>() {
             @Override

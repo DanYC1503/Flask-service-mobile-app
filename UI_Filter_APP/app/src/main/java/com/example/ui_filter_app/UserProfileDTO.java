@@ -8,13 +8,17 @@ public class UserProfileDTO {
     private String displayName;
     private String bio;
 
+    private String password;
+
     // ✅ Constructor requerido
-    public UserProfileDTO(String uid,String email, String userName, String displayName, String bio) {
+
+    public UserProfileDTO(String uid,String email, String userName, String displayName, String bio, String password) {
         this.uid = uid;
         this.email = email;
         this.userName = userName;
         this.displayName = displayName;
         this.bio = bio;
+        this.password = password;
     }
 
     // ✅ Getters y setters si los necesitas para Retrofit/Gson
