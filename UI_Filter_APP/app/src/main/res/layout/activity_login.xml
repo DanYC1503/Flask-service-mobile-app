@@ -9,15 +9,17 @@
     android:padding="32dp">
 
     <EditText
-    android:id="@+id/emailLogin"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/edittext_background"
-    android:hint="Correo electrónico"
-    android:inputType="textEmailAddress"
-    android:padding="12dp"
-    android:elevation="4dp" 
-    android:textColorHint="#757575"/>
+        android:id="@+id/emailLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edittext_background"
+        android:hint="Correo electrónico"
+        android:inputType="textEmailAddress"
+        android:padding="12dp"
+        android:elevation="4dp"
+        android:textColor="#000000"
+        android:textColorHint="#616161"
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/passwordLogin"
@@ -28,8 +30,10 @@
         android:hint="Contraseña"
         android:inputType="textPassword"
         android:padding="12dp"
-        android:elevation="4dp" 
-        android:textColorHint="#757575"/>
+        android:elevation="4dp"
+        android:textColor="#000000"
+        android:textColorHint="#616161"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/loginButton"
