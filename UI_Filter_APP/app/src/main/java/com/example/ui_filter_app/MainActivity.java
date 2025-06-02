@@ -2,6 +2,7 @@ package com.example.ui_filter_app;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -22,12 +23,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -156,7 +162,36 @@ public class MainActivity extends AppCompatActivity {
         profileScrollView.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
         uploadLayout.setVisibility(View.GONE);
+
+        SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
+        Set<String> ids = prefs.getStringSet("postIds", new HashSet<>());
+        List<String> postIds = new ArrayList<>(ids);
+
+        List<PostImage> postImages = new ArrayList<>();
+        PostImageAdapter adapter = new PostImageAdapter(this, postImages);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+
+        for (String postId : postIds) {
+            api.getImageUrl(postId).enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        postImages.add(new PostImage(postId, response.body()));
+                        adapter.notifyItemInserted(postImages.size() - 1);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e("ImageLoad", "Error al obtener imagen: " + t.getMessage());
+                }
+            });
+        }
     }
+
+
+
 
     private void showUploadSection() {
         recyclerView.setVisibility(View.GONE);
@@ -279,7 +314,6 @@ public class MainActivity extends AppCompatActivity {
         uploadProgress.setVisibility(View.VISIBLE);
         btnUploadPhoto.setEnabled(false);
 
-        // Convertir Bitmap a archivo
         File file = bitmapToFile(currentBitmap);
         if (file == null) {
             Toast.makeText(this, "Error al preparar la imagen", Toast.LENGTH_SHORT).show();
@@ -291,10 +325,8 @@ public class MainActivity extends AppCompatActivity {
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
-        // Generar un ID único para el post
         String postId = "post_" + System.currentTimeMillis();
 
-        // Llamar al servicio
         api.uploadImage(postId, body).enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
@@ -303,11 +335,14 @@ public class MainActivity extends AppCompatActivity {
 
                 if (response.isSuccessful()) {
                     Toast.makeText(MainActivity.this, "Imagen subida exitosamente", Toast.LENGTH_SHORT).show();
-                    // Resetear la vista
+
+                    savePostIdLocally(postId); // ✅ Guarda postId
+
                     imagePreview.setImageBitmap(null);
                     btnUploadPhoto.setVisibility(View.GONE);
                     currentBitmap = null;
                     currentImageUri = null;
+
                 } else {
                     Toast.makeText(MainActivity.this, "Error al subir la imagen", Toast.LENGTH_SHORT).show();
                 }
@@ -321,6 +356,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void savePostIdLocally(String postId) {
+        SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
+        Set<String> ids = new HashSet<>(prefs.getStringSet("postIds", new HashSet<>()));
+        ids.add(postId);
+        prefs.edit().putStringSet("postIds", ids).apply();
+    }
+
+
 
     private File bitmapToFile(Bitmap bitmap) {
         File file = new File(getCacheDir(), "temp_image.jpg");

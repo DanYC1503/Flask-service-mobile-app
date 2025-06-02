@@ -43,6 +43,13 @@ public interface UserServiceAPI {
             @Part MultipartBody.Part file
     );
 
+   
+
+    @GET("/upload/{postId}")
+    Call<String> getImageUrl(@Path("postId") String postId);
+
+
+
 
 
 }
