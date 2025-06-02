@@ -17,32 +17,22 @@ public class ImageController {
     @Autowired
     private ImageService imageService;
 
-    @PostMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<String> uploadImage(@PathVariable String postId,
-                                    @RequestPart("file") FilePart filePart) {
-        return imageService.uploadImage(filePart, postId);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<String> uploadImage(@RequestPart("file") FilePart filePart) {
+        return imageService.uploadImage(filePart, "default");
     }
 
-    @GetMapping("/{postId}")
-    public Mono<ResponseEntity<String>> getImageUrl(@PathVariable String postId) {
-        return imageService.getImageUrl(postId)
-                .map(url -> ResponseEntity.ok().body(url))
-                .onErrorResume(e -> Mono.just(ResponseEntity.notFound().build()));
+    @PostMapping(value = "/process", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<String> processImage(@RequestPart("file") FilePart filePart,
+                                    @RequestPart("method") String method,
+                                    @RequestPart("mask_size") Integer maskSize) {
+        return imageService.processAndUploadImage(filePart, "default", method, maskSize);
     }
-
-    @DeleteMapping("/{postId}")
-    public Mono<ResponseEntity<Object>> deleteImage(@PathVariable String postId) {
-        return imageService.deleteImage(postId)
+    @DeleteMapping
+    public Mono<ResponseEntity<Object>> deleteImageByUrl(@RequestBody String imageUrlOrName) {
+        return imageService.deleteImageByUrl(imageUrlOrName)
                 .then(Mono.just(ResponseEntity.noContent().build()))
                 .onErrorResume(e -> Mono.just(ResponseEntity.notFound().build()));
     }
-
-    // @PostMapping(value = "/process/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    // public Mono<String> processImage(@PathVariable String postId,
-    //                                 @RequestPart("file") FilePart filePart,
-    //                                 @RequestPart("method") String method,
-    //                                 @RequestPart("mask_size") Integer maskSize) {
-    //     return imageService.processAndUploadImage(filePart, postId, method, maskSize);
-    // }
 
 }
