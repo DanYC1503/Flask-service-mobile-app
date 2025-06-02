@@ -10,21 +10,29 @@
 
     <!-- Barra superior -->
     <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
-        android:background="#FFFFFF"
-        android:fitsSystemWindows="true">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
+    android:background="@android:color/transparent"
+    android:elevation="4dp"
+    android:fitsSystemWindows="true">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/topAppBar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="UPSGlam 2.0"
-            app:titleTextColor="#000000"
-            app:navigationIcon="@drawable/ic_camera"
-            app:menu="@menu/top_bar_menu" />
-    </com.google.android.material.appbar.AppBarLayout>
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#6C7FD0"
+        app:title="UPSGlam 2.0"
+        app:titleTextColor="@android:color/white"
+        app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+        app:navigationIcon="@drawable/ic_camera"
+        app:navigationIconTint="@android:color/white"
+        app:menu="@menu/top_bar_menu"
+        app:elevation="0dp"
+        app:contentInsetStart="16dp"
+        app:contentInsetEnd="16dp" />
+
+</com.google.android.material.appbar.AppBarLayout>
 
     <!-- Contenido principal -->
     <androidx.constraintlayout.widget.ConstraintLayout
