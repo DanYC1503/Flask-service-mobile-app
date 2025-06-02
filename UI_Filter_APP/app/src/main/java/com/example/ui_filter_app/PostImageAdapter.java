@@ -1,11 +1,11 @@
 package com.example.ui_filter_app;
 
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +34,11 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.Imag
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         PostImage image = images.get(position);
+
+        // Mostrar nombre de usuario
+        holder.userNameText.setText("Publicado por: " + image.getUserName());
+
+        // Cargar imagen con Glide
         Glide.with(context)
                 .load(image.getImageUrl())
                 .centerCrop()
@@ -48,10 +53,12 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.Imag
 
     public static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        TextView userNameText;
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.postImageView);
+            userNameText = itemView.findViewById(R.id.userNameText);
         }
     }
 }

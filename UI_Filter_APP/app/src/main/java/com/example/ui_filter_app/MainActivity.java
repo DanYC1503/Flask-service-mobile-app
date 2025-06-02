@@ -10,10 +10,12 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Toast;
@@ -42,6 +44,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -54,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ScrollView profileScrollView;
     private FrameLayout uploadLayout;
+
+    private LinearLayout myPostsContainer;
 
     private UserServiceAPI api;
     private String userId;
@@ -73,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        myPostsContainer = findViewById(R.id.myPostsContainer);
 
         Log.d("MainActivity", "UID del usuario: " + userId);
 
@@ -117,8 +124,8 @@ public class MainActivity extends AppCompatActivity {
                 showUserProfile();
             } else if (itemId == R.id.nav_upload) {
                 showUploadSection();
-            } else {
-                showPostsList();
+            } else if (itemId == R.id.nav_home) {  // <- Este sería el ítem del feed general
+                showPostsList();  // Muestra todas las publicaciones
             }
             return true;
         });
@@ -155,49 +162,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setVisibility(View.GONE);
         profileScrollView.setVisibility(View.VISIBLE);
         uploadLayout.setVisibility(View.GONE);
-        loadUserProfile();
-    }
 
-    private void showPostsList() {
-        profileScrollView.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.VISIBLE);
-        uploadLayout.setVisibility(View.GONE);
-
-        SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
-        Set<String> ids = prefs.getStringSet("postIds", new HashSet<>());
-        List<String> postIds = new ArrayList<>(ids);
-
-        List<PostImage> postImages = new ArrayList<>();
-        PostImageAdapter adapter = new PostImageAdapter(this, postImages);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
-
-        for (String postId : postIds) {
-            api.getImageUrl(postId).enqueue(new Callback<String>() {
-                @Override
-                public void onResponse(Call<String> call, Response<String> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        postImages.add(new PostImage(postId, response.body()));
-                        adapter.notifyItemInserted(postImages.size() - 1);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<String> call, Throwable t) {
-                    Log.e("ImageLoad", "Error al obtener imagen: " + t.getMessage());
-                }
-            });
-        }
-    }
-
-
-
-
-    private void showUploadSection() {
-        recyclerView.setVisibility(View.GONE);
-        profileScrollView.setVisibility(View.GONE);
-        uploadLayout.setVisibility(View.VISIBLE);
-        btnUploadPhoto.setVisibility(View.GONE);
+        loadUserProfile(); // Ahora showMyPostsInProfile se invoca dentro de loadUserProfile
     }
 
     private void loadUserProfile() {
@@ -206,11 +172,12 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<UserProfileDTO> call, Response<UserProfileDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     UserProfileDTO user = response.body();
-                    Toast.makeText(MainActivity.this, "Usuario cargado: " + user.getUserName(), Toast.LENGTH_SHORT).show();
                     emailField.setText(user.getEmail());
                     usernameField.setText(user.getUserName());
                     displayNameField.setText(user.getDisplayName());
                     bioField.setText(user.getBio());
+
+                    showMyPostsInProfile(); // Solo aquí, tras cargar los datos
                 } else {
                     Toast.makeText(MainActivity.this, "Error al cargar perfil: Código " + response.code(), Toast.LENGTH_SHORT).show();
                 }
@@ -221,6 +188,99 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Fallo conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showMyPostsInProfile() {
+        myPostsContainer.removeAllViews();
+
+        SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
+        Set<String> raw = prefs.getStringSet("postData", new HashSet<>());
+        String myName = displayNameField.getText().toString().trim();
+        if (myName.isEmpty()) {
+            myName = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        }
+
+        for (String entry : raw) {
+            String[] parts = entry.split("::");
+            if (parts.length == 2 && parts[1].equals(myName)) {
+                String postId = parts[0];
+                String userName = parts[1];
+
+                api.getImageUrl(postId).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            ImageView imageView = new ImageView(MainActivity.this);
+                            imageView.setLayoutParams(new LinearLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT, 400));
+                            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                            imageView.setPadding(0, 8, 0, 8);
+
+                            Glide.with(MainActivity.this)
+                                    .load(response.body())
+                                    .centerCrop()
+                                    .placeholder(R.drawable.ic_launcher_background)
+                                    .into(imageView);
+
+                            myPostsContainer.addView(imageView);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        Log.e("ProfileImageLoad", "Error al cargar imagen: " + t.getMessage());
+                    }
+                });
+            }
+        }
+    }
+
+    // ... (el resto de los métodos permanecen igual)
+
+
+
+    private void showPostsList() {
+        profileScrollView.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+        uploadLayout.setVisibility(View.GONE);
+
+        SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
+        Set<String> raw = prefs.getStringSet("postData", new HashSet<>());
+        List<PostImage> postImages = new ArrayList<>();
+        PostImageAdapter adapter = new PostImageAdapter(this, postImages);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+
+        // Mostrar TODAS las publicaciones (propias y de otros)
+        for (String entry : raw) {
+            String[] parts = entry.split("::");
+            if (parts.length == 2) {  // Eliminamos cualquier filtro que hubiera
+                String postId = parts[0];
+                String userName = parts[1];
+
+                api.getImageUrl(postId).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            postImages.add(new PostImage(postId, response.body(), userName));
+                            adapter.notifyItemInserted(postImages.size() - 1);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        Log.e("ImageLoad", "Error al obtener imagen: " + t.getMessage());
+                    }
+                });
+            }
+        }
+    }
+
+    private void showUploadSection() {
+        recyclerView.setVisibility(View.GONE);
+        profileScrollView.setVisibility(View.GONE);
+        uploadLayout.setVisibility(View.VISIBLE);
+        btnUploadPhoto.setVisibility(View.GONE);
     }
 
     private void updateUserProfile() {
@@ -336,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     Toast.makeText(MainActivity.this, "Imagen subida exitosamente", Toast.LENGTH_SHORT).show();
 
-                    savePostIdLocally(postId); // ✅ Guarda postId
+                    savePostIdLocally(postId);
 
                     imagePreview.setImageBitmap(null);
                     btnUploadPhoto.setVisibility(View.GONE);
@@ -359,12 +419,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void savePostIdLocally(String postId) {
         SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
-        Set<String> ids = new HashSet<>(prefs.getStringSet("postIds", new HashSet<>()));
-        ids.add(postId);
-        prefs.edit().putStringSet("postIds", ids).apply();
+        Set<String> raw = prefs.getStringSet("postData", new HashSet<>());
+
+        String userName = displayNameField.getText().toString().trim();
+        if (userName.isEmpty()) {
+            userName = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        }
+
+        raw.add(postId + "::" + userName);
+
+        prefs.edit().putStringSet("postData", raw).apply();
     }
-
-
 
     private File bitmapToFile(Bitmap bitmap) {
         File file = new File(getCacheDir(), "temp_image.jpg");
@@ -413,6 +478,88 @@ public class MainActivity extends AppCompatActivity {
             }
             if (!allGranted) {
                 Toast.makeText(this, "Los permisos son necesarios para usar esta función", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void showMyPosts() {
+        profileScrollView.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+        uploadLayout.setVisibility(View.GONE);
+
+        SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
+        Set<String> raw = prefs.getStringSet("postData", new HashSet<>());
+        List<PostImage> myImages = new ArrayList<>();
+        PostImageAdapter adapter = new PostImageAdapter(this, myImages);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+
+        String myName = displayNameField.getText().toString().trim();
+        if (myName.isEmpty()) {
+            myName = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        }
+
+        for (String entry : raw) {
+            String[] parts = entry.split("::");
+            if (parts.length == 2 && parts[1].equals(myName)) {
+                String postId = parts[0];
+                String userName = parts[1];
+
+                api.getImageUrl(postId).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            myImages.add(new PostImage(postId, response.body(), userName));
+                            adapter.notifyItemInserted(myImages.size() - 1);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        Log.e("ImageLoad", "Error al obtener imagen: " + t.getMessage());
+                    }
+                });
+            }
+        }
+    }
+
+    private void showOtherPosts() {
+        profileScrollView.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+        uploadLayout.setVisibility(View.GONE);
+
+        SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
+        Set<String> raw = prefs.getStringSet("postData", new HashSet<>());
+        List<PostImage> otherImages = new ArrayList<>();
+        PostImageAdapter adapter = new PostImageAdapter(this, otherImages);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+
+        String myName = displayNameField.getText().toString().trim();
+        if (myName.isEmpty()) {
+            myName = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        }
+
+        for (String entry : raw) {
+            String[] parts = entry.split("::");
+            if (parts.length == 2 && !parts[1].equals(myName)) {
+                String postId = parts[0];
+                String userName = parts[1];
+
+                api.getImageUrl(postId).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            otherImages.add(new PostImage(postId, response.body(), userName));
+                            adapter.notifyItemInserted(otherImages.size() - 1);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        Log.e("ImageLoad", "Error al obtener imagen: " + t.getMessage());
+                    }
+                });
             }
         }
     }

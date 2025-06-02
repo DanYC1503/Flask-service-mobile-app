@@ -186,6 +186,8 @@
                         android:layout_height="2dp"
                         android:background="#5C6BC0"
                         android:layout_marginTop="8dp"/>
+
+
                 </LinearLayout>
 
                 <!-- Sección de información mejorada -->
@@ -313,6 +315,24 @@
                     app:cornerRadius="8dp"
                     android:elevation="2dp"
                     android:fontFamily="sans-serif-medium"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mis publicaciones"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#5C6BC0"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/myPostsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="4dp" />
+
             </LinearLayout>
         </ScrollView>
 
