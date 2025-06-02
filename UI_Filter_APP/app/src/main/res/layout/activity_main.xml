@@ -5,34 +5,34 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="#FAFAFA"
     android:fitsSystemWindows="true">
 
-    <!-- Barra superior -->
+    <!-- Barra superior mejorada -->
     <com.google.android.material.appbar.AppBarLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
-    android:background="@android:color/transparent"
-    android:elevation="4dp"
-    android:fitsSystemWindows="true">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/topAppBar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="#6C7FD0"
-        app:title="UPSGlam 2.0"
-        app:titleTextColor="@android:color/white"
-        app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
-        app:navigationIcon="@drawable/ic_camera"
-        app:navigationIconTint="@android:color/white"
-        app:menu="@menu/top_bar_menu"
-        app:elevation="0dp"
-        app:contentInsetStart="16dp"
-        app:contentInsetEnd="16dp" />
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
+        android:background="@android:color/transparent"
+        android:elevation="6dp"
+        android:fitsSystemWindows="true">
 
-</com.google.android.material.appbar.AppBarLayout>
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#5C6BC0"
+            app:title="UPSGlam 2.0"
+            app:titleTextColor="@android:color/white"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+            app:navigationIcon="@drawable/ic_camera"
+            app:navigationIconTint="@android:color/white"
+            app:menu="@menu/top_bar_menu"
+            app:elevation="0dp"
+            app:contentInsetStart="16dp"
+            app:contentInsetEnd="16dp" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Contenido principal -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -48,13 +48,13 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipToPadding="false"
-            android:padding="8dp"
+            android:paddingVertical="8dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Vista para subir fotos (inicialmente oculta) -->
+        <!-- Vista para subir fotos (mejorada) -->
         <FrameLayout
             android:id="@+id/uploadLayout"
             android:layout_width="0dp"
@@ -78,15 +78,18 @@
                     android:layout_width="300dp"
                     android:layout_height="300dp"
                     android:scaleType="centerCrop"
-                    android:background="#EEEEEE"
-                    android:contentDescription="Vista previa de la imagen"/>
+                    android:background="#F5F5F5"
+                    android:contentDescription="Vista previa de la imagen"
+                    android:elevation="4dp"
+                    android:outlineProvider="bounds"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginTop="24dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:paddingHorizontal="16dp">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnTakePhoto"
@@ -96,8 +99,10 @@
                         android:layout_marginEnd="8dp"
                         android:text="Tomar Foto"
                         style="@style/Widget.MaterialComponents.Button"
-                        android:backgroundTint="#2196F3"
-                        android:textColor="@android:color/white"/>
+                        android:backgroundTint="#5C6BC0"
+                        android:textColor="@android:color/white"
+                        app:cornerRadius="8dp"
+                        android:elevation="2dp"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSelectPhoto"
@@ -106,9 +111,12 @@
                         android:layout_weight="1"
                         android:layout_marginStart="8dp"
                         android:text="Seleccionar"
+                        android:textSize="13sp"
                         style="@style/Widget.MaterialComponents.Button"
-                        android:backgroundTint="#4CAF50"
-                        android:textColor="@android:color/white"/>
+                        android:backgroundTint="#7986CB"
+                        android:textColor="@android:color/white"
+                        app:cornerRadius="8dp"
+                        android:elevation="2dp"/>
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
@@ -117,9 +125,11 @@
                     android:layout_height="48dp"
                     android:text="Subir Foto"
                     style="@style/Widget.MaterialComponents.Button"
-                    android:backgroundTint="#FF9800"
+                    android:backgroundTint="#5C6BC0"
                     android:textColor="@android:color/white"
                     android:layout_marginTop="24dp"
+                    app:cornerRadius="8dp"
+                    android:elevation="2dp"
                     android:visibility="gone"/>
 
                 <ProgressBar
@@ -127,17 +137,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
+                    android:indeterminateTint="#5C6BC0"
                     android:visibility="gone"/>
             </LinearLayout>
         </FrameLayout>
 
-        <!-- Vista de perfil (inicialmente oculta) -->
+        <!-- Vista de perfil mejorada -->
         <ScrollView
             android:id="@+id/profileScrollView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:visibility="gone"
-            android:background="#F5F5F5"
+            android:background="#FAFAFA"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
             app:layout_constraintStart_toStartOf="parent"
@@ -149,11 +160,11 @@
                 android:orientation="vertical"
                 android:padding="24dp"
                 android:background="@android:color/white"
-                android:elevation="8dp"
+                android:elevation="4dp"
                 android:layout_margin="16dp"
                 android:clipToPadding="false">
 
-                <!-- Encabezado del perfil -->
+                <!-- Encabezado del perfil mejorado -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -165,25 +176,25 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Mi Perfil"
-                        android:textSize="28sp"
+                        android:textSize="24sp"
                         android:textStyle="bold"
-                        android:textColor="#212121"
+                        android:textColor="#3F51B5"
                         android:letterSpacing="0.02"/>
 
                     <View
                         android:layout_width="120dp"
                         android:layout_height="2dp"
-                        android:background="#2196F3"
+                        android:background="#5C6BC0"
                         android:layout_marginTop="8dp"/>
                 </LinearLayout>
 
-                <!-- Sección de información -->
+                <!-- Sección de información mejorada -->
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Información personal"
-                    android:textSize="18sp"
-                    android:textColor="#424242"
+                    android:textSize="16sp"
+                    android:textColor="#5C6BC0"
                     android:textStyle="bold"
                     android:layout_marginBottom="16dp"/>
 
@@ -193,7 +204,8 @@
                     android:hint="Correo electrónico"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_marginBottom="16dp"
-                    android:paddingStart="4dp">
+                    app:boxStrokeColor="#5C6BC0"
+                    app:hintTextColor="#5C6BC0">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/emailField"
@@ -201,7 +213,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="textEmailAddress"
                         android:enabled="false"
-                        android:textColor="#616161"/>
+                        android:textColor="#424242"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -210,14 +222,15 @@
                     android:hint="Nombre de usuario"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_marginBottom="16dp"
-                    android:paddingStart="4dp">
+                    app:boxStrokeColor="#5C6BC0"
+                    app:hintTextColor="#5C6BC0">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/usernameField"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:textColor="#616161"/>
+                        android:textColor="#424242"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -226,14 +239,15 @@
                     android:hint="Nombre a mostrar"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_marginBottom="16dp"
-                    android:paddingStart="4dp">
+                    app:boxStrokeColor="#5C6BC0"
+                    app:hintTextColor="#5C6BC0">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/displayNameField"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:textColor="#616161"/>
+                        android:textColor="#424242"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -242,7 +256,8 @@
                     android:hint="Biografía"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_marginBottom="24dp"
-                    android:paddingStart="4dp">
+                    app:boxStrokeColor="#5C6BC0"
+                    app:hintTextColor="#5C6BC0">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/bioField"
@@ -250,16 +265,16 @@
                         android:layout_height="wrap_content"
                         android:inputType="textMultiLine"
                         android:minLines="3"
-                        android:textColor="#616161"/>
+                        android:textColor="#424242"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Sección de acciones -->
+                <!-- Sección de acciones mejorada -->
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Acciones de cuenta"
-                    android:textSize="18sp"
-                    android:textColor="#424242"
+                    android:textSize="16sp"
+                    android:textColor="#5C6BC0"
                     android:textStyle="bold"
                     android:layout_marginBottom="16dp"/>
 
@@ -269,7 +284,7 @@
                     android:layout_height="48dp"
                     android:text="Actualizar perfil"
                     style="@style/Widget.MaterialComponents.Button"
-                    android:backgroundTint="#2196F3"
+                    android:backgroundTint="#5C6BC0"
                     android:textColor="@android:color/white"
                     app:cornerRadius="8dp"
                     android:elevation="2dp"
@@ -281,10 +296,10 @@
                     android:layout_height="48dp"
                     android:text="Cerrar sesión"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:textColor="#757575"
+                    android:textColor="#5C6BC0"
                     android:layout_marginTop="12dp"
                     app:cornerRadius="8dp"
-                    app:strokeColor="#BDBDBD"/>
+                    app:strokeColor="#5C6BC0"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDelete"
@@ -292,7 +307,7 @@
                     android:layout_height="48dp"
                     android:text="Eliminar cuenta"
                     style="@style/Widget.MaterialComponents.Button"
-                    android:backgroundTint="#D32F2F"
+                    android:backgroundTint="#E53935"
                     android:textColor="@android:color/white"
                     android:layout_marginTop="24dp"
                     app:cornerRadius="8dp"
@@ -301,13 +316,17 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- Bottom Navigation -->
+        <!-- Bottom Navigation mejorada -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="#FFFFFF"
+            android:background="@android:color/white"
+            app:itemIconTint="@drawable/nav_item_color_state"
+            app:itemTextColor="@drawable/nav_item_color_state"
             app:menu="@menu/bottom_nav_menu"
+            app:labelVisibilityMode="labeled"
+            app:elevation="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
