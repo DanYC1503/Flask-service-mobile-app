@@ -128,7 +128,12 @@ public class MainActivity extends AppCompatActivity {
         btnLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
             Toast.makeText(MainActivity.this, "Sesión cerrada", Toast.LENGTH_SHORT).show();
-            finish();
+
+            // Redirigir a LoginActivity y cerrar MainActivity
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Limpiar el stack de actividades
+            startActivity(intent);
+            finish(); // Cierra MainActivity para evitar volver atrás con el botón "Back"
         });
 
         // Listeners para subida de fotos
