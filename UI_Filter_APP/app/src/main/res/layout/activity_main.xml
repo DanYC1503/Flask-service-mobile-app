@@ -46,6 +46,83 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- Vista para subir fotos (inicialmente oculta) -->
+        <FrameLayout
+            android:id="@+id/uploadLayout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:background="#FFFFFF"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="24dp">
+
+                <ImageView
+                    android:id="@+id/imagePreview"
+                    android:layout_width="300dp"
+                    android:layout_height="300dp"
+                    android:scaleType="centerCrop"
+                    android:background="#EEEEEE"
+                    android:contentDescription="Vista previa de la imagen"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="24dp"
+                    android:gravity="center">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTakePhoto"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:text="Tomar Foto"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:backgroundTint="#2196F3"
+                        android:textColor="@android:color/white"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSelectPhoto"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="Seleccionar"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:backgroundTint="#4CAF50"
+                        android:textColor="@android:color/white"/>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnUploadPhoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="Subir Foto"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:backgroundTint="#FF9800"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="24dp"
+                    android:visibility="gone"/>
+
+                <ProgressBar
+                    android:id="@+id/uploadProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"/>
+            </LinearLayout>
+        </FrameLayout>
+
         <!-- Vista de perfil (inicialmente oculta) -->
         <ScrollView
             android:id="@+id/profileScrollView"
