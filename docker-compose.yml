@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile
+    image: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - post-service
+      - image-service
+      - user-service
+    networks:
+      - upsnet
+
+  user-service:
+    build:
+      context: ./backend/user-service
+      dockerfile: Dockerfile
+    image: user-service
+    ports:
+      - "8084:8084"
+    networks:
+      - upsnet
+
+  post-service:
+    build:
+      context: ./backend/post-service
+      dockerfile: Dockerfile
+    image: post-service
+    ports:
+      - "8082:8082"
+    networks:
+      - upsnet
+
+  image-service:
+    build:
+      context: ./backend/image-service
+      dockerfile: Dockerfile
+    image: image-service
+    ports:
+      - "8083:8083"
+    networks:
+      - upsnet
+    environment:
+      - FLASK_SERVICES=http://flask-filter-1:5000/process,http://flask-filter-2:5000/process,http://flask-filter-3:5000/process
+
+networks:
+  upsnet:
+    driver: bridge

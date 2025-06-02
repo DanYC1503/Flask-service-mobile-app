@@ -1,7 +1,7 @@
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:22-jdk-alpine
 WORKDIR /app
 
-COPY image-service.jar app.jar
+COPY /target/image-service.jar app.jar
 
 EXPOSE 8083
 ENTRYPOINT ["java", "-jar", "app.jar"]

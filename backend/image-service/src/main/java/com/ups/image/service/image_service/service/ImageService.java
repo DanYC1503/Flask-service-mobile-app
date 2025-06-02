@@ -27,8 +27,8 @@ public class ImageService {
     private final WebClient webClient;
     private Bucket bucket;
     private final AtomicInteger counter = new AtomicInteger(0);
-    @Value("${FLASK_SERVICES}")
-    private String flaskServices;
+    // @Value("${FLASK_SERVICES}")
+    // private String flaskServices;
 
     private String[] flaskUrls;
 
@@ -43,54 +43,55 @@ public class ImageService {
         if (bucket == null) {
             throw new RuntimeException("No se pudo obtener el bucket: " + "upsglam.firebasestorage.app");
         }
-        this.flaskUrls = flaskServices.split(",");
-    }
-    private String getNextFlaskUrl() {
-        int index = counter.getAndUpdate(i -> (i + 1) % flaskUrls.length);
-        return flaskUrls[index];
+        // this.flaskUrls = flaskServices.split(",");
     }
 
-    public Mono<String> processAndUploadImage(FilePart filePart, String postId, String method, Integer maskSize) {
-        return DataBufferUtils.join(filePart.content())
-            .flatMap(dataBuffer -> {
-                byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                dataBuffer.read(bytes);
-                DataBufferUtils.release(dataBuffer);
-                return sendToFlask(bytes, filePart.filename(), method, maskSize);
-            })
-            .flatMap(filteredBytes -> {
-                String fileName = UUID.randomUUID().toString() + "-" + filePart.filename();
-                String path = String.format("images/posts/%s/%s", postId, fileName);
+    // private String getNextFlaskUrl() {
+    //     int index = counter.getAndUpdate(i -> (i + 1) % flaskUrls.length);
+    //     return flaskUrls[index];
+    // }
 
-                bucket.create(path, filteredBytes, "image/png");
+    // public Mono<String> processAndUploadImage(FilePart filePart, String postId, String method, Integer maskSize) {
+    //     return DataBufferUtils.join(filePart.content())
+    //         .flatMap(dataBuffer -> {
+    //             byte[] bytes = new byte[dataBuffer.readableByteCount()];
+    //             dataBuffer.read(bytes);
+    //             DataBufferUtils.release(dataBuffer);
+    //             return sendToFlask(bytes, filePart.filename(), method, maskSize);
+    //         })
+    //         .flatMap(filteredBytes -> {
+    //             String fileName = UUID.randomUUID().toString() + "-" + filePart.filename();
+    //             String path = String.format("images/posts/%s/%s", postId, fileName);
 
-                URL signedUrl = storage.signUrl(
-                    BlobInfo.newBuilder(bucket.getName(), path).build(),
-                    1, TimeUnit.HOURS,
-                    Storage.SignUrlOption.withV4Signature()
-                );
+    //             bucket.create(path, filteredBytes, "image/png");
 
-                return Mono.just(signedUrl.toString());
-            });
-    }
+    //             URL signedUrl = storage.signUrl(
+    //                 BlobInfo.newBuilder(bucket.getName(), path).build(),
+    //                 1, TimeUnit.HOURS,
+    //                 Storage.SignUrlOption.withV4Signature()
+    //             );
 
-    private Mono<byte[]> sendToFlask(byte[] imageBytes, String filename, String method, Integer maskSize) {
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("image", imageBytes)
-               .filename(filename)
-               .contentType(MediaType.APPLICATION_OCTET_STREAM);
-        builder.part("method", method);
-        builder.part("mask_size", maskSize);
+    //             return Mono.just(signedUrl.toString());
+    //         });
+    // }
 
-        String flaskUrl = getNextFlaskUrl();
+    // private Mono<byte[]> sendToFlask(byte[] imageBytes, String filename, String method, Integer maskSize) {
+    //     MultipartBodyBuilder builder = new MultipartBodyBuilder();
+    //     builder.part("image", imageBytes)
+    //            .filename(filename)
+    //            .contentType(MediaType.APPLICATION_OCTET_STREAM);
+    //     builder.part("method", method);
+    //     builder.part("mask_size", maskSize);
 
-        return webClient.post()
-            .uri(flaskUrl)
-            .contentType(MediaType.MULTIPART_FORM_DATA)
-            .body(BodyInserters.fromMultipartData(builder.build()))
-            .retrieve()
-            .bodyToMono(byte[].class);
-    }
+    //     String flaskUrl = getNextFlaskUrl();
+
+    //     return webClient.post()
+    //         .uri(flaskUrl)
+    //         .contentType(MediaType.MULTIPART_FORM_DATA)
+    //         .body(BodyInserters.fromMultipartData(builder.build()))
+    //         .retrieve()
+    //         .bodyToMono(byte[].class);
+    // }
 
 
     public Mono<String> uploadImage(FilePart filePart, String postId) {
