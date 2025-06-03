@@ -53,6 +53,9 @@ El proyecto adopta una arquitectura moderna basada en **microservicios**, con se
 
 ---
 
+![Arquitectura](images/images/arquitectura.png)
+
+
 ### 3. Aplicación Móvil: `UI_Filter_APP`
 
 #### Funcionalidades
@@ -72,11 +75,17 @@ El proyecto adopta una arquitectura moderna basada en **microservicios**, con se
 
 #### Vistas de la aplicación
 
-- Registro / Login  
-- Inicio / Publicar  
+- Registro / Login
+
+![Registro/Login](images/images/app1.png)
+
+- Inicio / Publicar
+
+![Inicio](images/images/app2.png)
+
 - Perfil  
 
-*Nota: Puedes incluir capturas de pantalla correspondientes a cada sección.*
+![Arquitectura](images/images/pp3.png)
 
 ---
 
@@ -92,6 +101,10 @@ Desarrollados con **Flask**, los microservicios incluyen:
 #### Despliegue
 - Contenerización con **Docker** y orquestación con **docker-compose**
 
+![Compose](images/images/compose.png)
+
+![Compose](images/images/backend.png)
+
 ---
 
 ### 5. Flujo de Trabajo Principal
@@ -101,10 +114,14 @@ Desarrollados con **Flask**, los microservicios incluyen:
 1. Los usuarios se autentican con Firebase.  
 2. Retrofit envía automáticamente el token en cada solicitud.
 
+![Flujo Principal](images/images/mainflux.png)
+
 #### Carga y procesamiento de imágenes
 
 1. El usuario sube una imagen desde la app.  
 2. La imagen es procesada con filtros por GPU y publicada.
+
+![Procesamiento](images/images/process.png)
 
 ---
 
@@ -140,6 +157,8 @@ El sistema está desplegado en contenedores con soporte de GPU para maximizar el
 - Todos los servicios se encuentran **containerizados**.  
 - Se orquestan con **docker-compose**.  
 - Variables de entorno sensibles se manejan con un archivo `.env`.
+
+![Implementación](images/images/implementation.png)
 
 ### 9. Conclusión
 
