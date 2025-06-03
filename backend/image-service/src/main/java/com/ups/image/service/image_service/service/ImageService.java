@@ -2,11 +2,10 @@ package com.ups.image.service.image_service.service;
 
 import jakarta.annotation.PostConstruct;
 
-import com.google.api.client.util.Value;
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
+import java.net.URLConnection;
 
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.codec.multipart.FilePart;
@@ -66,8 +65,6 @@ public class ImageService {
             });
     }
 
-
-
     private Mono<String> sendToFlask(byte[] imageBytes, String filename, String method, Integer maskSize) {
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("image", imageBytes)
@@ -85,10 +82,6 @@ public class ImageService {
             .retrieve()
             .bodyToMono(String.class); // ✅ Expect a Base64 string
     }
-
-
-
-
 
     public Mono<String> uploadImage(FilePart filePart, String postId) {
         return DataBufferUtils.join(filePart.content())
@@ -151,4 +144,24 @@ public class ImageService {
         });
     }
 
+    public Mono<String> uploadProcessedImage(byte[] imageBytes, String postId, String originalFilename) {
+        return Mono.fromCallable(() -> {
+            String fileName = UUID.randomUUID().toString() + "-processed-" + originalFilename;
+            String path = String.format("images/posts/%s/%s", postId, fileName);
+            String contentType = URLConnection.guessContentTypeFromName(originalFilename);
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+            bucket.create(path, imageBytes, contentType);
+    
+            URL signedUrl = storage.signUrl(
+                BlobInfo.newBuilder(bucket.getName(), path).build(),
+                1, TimeUnit.HOURS,
+                Storage.SignUrlOption.withV4Signature()
+            );
+    
+            return signedUrl.toString();
+        });
+    }
+    
 }
