@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Toast;
+import android.widget.ImageButton;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,8 +37,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import okhttp3.MediaType;
@@ -53,13 +59,23 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText emailField, usernameField, displayNameField, bioField;
     private Button btnUpdate, btnDelete, btnLogout;
+    private boolean isImageLoaded = false;
 
     private RecyclerView recyclerView;
     private ScrollView profileScrollView;
     private FrameLayout uploadLayout;
 
     private LinearLayout myPostsContainer;
+    private FilterController filterController;
 
+    private final Map<Integer, String> filterMap = new HashMap<Integer, String>() {{
+        put(R.id.filterNone, "none");
+        put(R.id.filterMotion, "motion");
+        put(R.id.filterDog, "dog");
+        put(R.id.filterBack, "back");
+        put(R.id.filterNegative, "negative");
+        put(R.id.filterInk, "ink");
+    }};
     private UserServiceAPI api;
     private String userId;
 
@@ -67,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_IMAGE_PICK = 2;
     private static final int PERMISSION_REQUEST_CODE = 100;
+
+    private ImageButton selectedFilter = null;
 
     private ImageView imagePreview;
     private Button btnTakePhoto, btnSelectPhoto, btnUploadPhoto;
@@ -154,7 +172,34 @@ public class MainActivity extends AppCompatActivity {
         btnSelectPhoto.setOnClickListener(v -> openImagePicker());
         btnUploadPhoto.setOnClickListener(v -> uploadImage());
 
-        // Verificar permisos
+        // Initialize controller
+        filterController = new FilterController();
+
+        for (Integer id : filterMap.keySet()) {
+            ImageButton button = findViewById(id);
+            button.setOnClickListener(view -> {
+                // Only apply filter if image is loaded
+                if (!isImageLoaded) {
+                    Toast.makeText(MainActivity.this, "Carga una imagen primero", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Unselect previous filter button if any
+                if (selectedFilter != null) selectedFilter.setSelected(false);
+
+                // Select the clicked filter button
+                view.setSelected(true);
+                selectedFilter = (ImageButton) view;
+
+                // Get the filter method string
+                String method = filterMap.get(view.getId());
+
+                // Update selected filter method in controller
+                filterController.applyFilter(method);
+
+            });
+        }
+            // Verificar permisos
         checkPermissions();
     }
 
@@ -351,12 +396,20 @@ public class MainActivity extends AppCompatActivity {
                 currentBitmap = (Bitmap) extras.get("data");
                 imagePreview.setImageBitmap(currentBitmap);
                 btnUploadPhoto.setVisibility(View.VISIBLE);
+
+                // Mark image as loaded
+                isImageLoaded = true;
+
             } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
                 currentImageUri = data.getData();
                 try {
                     currentBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), currentImageUri);
                     imagePreview.setImageBitmap(currentBitmap);
                     btnUploadPhoto.setVisibility(View.VISIBLE);
+
+                    // Mark image as loaded
+                    isImageLoaded = true;
+
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(this, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
@@ -366,56 +419,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void uploadImage() {
-        if (currentBitmap == null) {
-            Toast.makeText(this, "No hay imagen para subir", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        uploadProgress.setVisibility(View.VISIBLE);
-        btnUploadPhoto.setEnabled(false);
-
-        File file = bitmapToFile(currentBitmap);
-        if (file == null) {
-            Toast.makeText(this, "Error al preparar la imagen", Toast.LENGTH_SHORT).show();
-            uploadProgress.setVisibility(View.GONE);
-            btnUploadPhoto.setEnabled(true);
-            return;
-        }
-
-        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
-
-        String postId = "post_" + System.currentTimeMillis();
-
-        api.uploadImage(postId, body).enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                uploadProgress.setVisibility(View.GONE);
-                btnUploadPhoto.setEnabled(true);
-
-                if (response.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "Imagen subida exitosamente", Toast.LENGTH_SHORT).show();
-
-                    savePostIdLocally(postId);
-
-                    imagePreview.setImageBitmap(null);
-                    btnUploadPhoto.setVisibility(View.GONE);
-                    currentBitmap = null;
-                    currentImageUri = null;
-
-                } else {
-                    Toast.makeText(MainActivity.this, "Error al subir la imagen", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                uploadProgress.setVisibility(View.GONE);
-                btnUploadPhoto.setEnabled(true);
-                Toast.makeText(MainActivity.this, "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+    if (currentBitmap == null) {
+        Toast.makeText(this, "No hay imagen para subir", Toast.LENGTH_SHORT).show();
+        return;
     }
+
+    uploadProgress.setVisibility(View.VISIBLE);
+    btnUploadPhoto.setEnabled(false);
+
+    // Llamamos al método estático de FilterController con el bitmap y el filtro seleccionado
+    FilterController.sendFilterRequest(currentBitmap, FilterController.selectedMethod, new FilterController.FilterCallback() {
+        @Override
+        public void onSuccess(String base64Image) {
+            runOnUiThread(() -> {
+                try {
+                    byte[] imageBytes = Base64.decode(base64Image, Base64.DEFAULT);
+                    Bitmap filteredBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+
+                    ImageView filteredImageView = findViewById(R.id.filteredImageView);
+                    LinearLayout filteredImageContainer = findViewById(R.id.filteredImageContainer);
+
+                    filteredImageView.setImageBitmap(filteredBitmap);
+                    filteredImageContainer.setVisibility(View.VISIBLE);
+
+                    Toast.makeText(MainActivity.this, "Filtro aplicado correctamente", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Error procesando imagen filtrada", Toast.LENGTH_SHORT).show();
+                }
+                uploadProgress.setVisibility(View.GONE);
+                btnUploadPhoto.setEnabled(true);
+            });
+        }
+
+        @Override
+        public void onError(String errorMessage) {
+            runOnUiThread(() -> {
+                Toast.makeText(MainActivity.this, "Error al aplicar filtro: " + errorMessage, Toast.LENGTH_SHORT).show();
+                uploadProgress.setVisibility(View.GONE);
+                btnUploadPhoto.setEnabled(true);
+            });
+        }
+    });
+}
 
     private void savePostIdLocally(String postId) {
         SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);

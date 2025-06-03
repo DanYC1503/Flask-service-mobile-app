@@ -118,6 +118,114 @@
                         app:cornerRadius="8dp"
                         android:elevation="2dp"/>
                 </LinearLayout>
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/filterOptionsLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingBottom="8dp">
+
+                        <!-- NO FILTER -->
+                        <ImageButton
+                            android:id="@+id/filterNone"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/filter_button_background"
+                            android:src="@drawable/ic_no_filter"
+                            android:contentDescription="Sin filtro"
+                            android:padding="12dp"
+                            android:scaleType="centerInside"
+                            android:layout_marginEnd="8dp"
+                            android:focusable="true"
+                            android:clickable="true"/>
+
+                        <!-- MOTION -->
+                        <ImageButton
+                            android:id="@+id/filterMotion"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/filter_button_background"
+                            android:src="@drawable/ic_motion"
+                            android:contentDescription="Motion Blur"
+                            android:padding="12dp"
+                            android:scaleType="centerInside"
+                            android:layout_marginEnd="8dp" />
+
+                        <!-- DOG -->
+                        <ImageButton
+                            android:id="@+id/filterDog"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/filter_button_background"
+                            android:src="@drawable/ic_dog"
+                            android:contentDescription="Filtro perro"
+                            android:padding="12dp"
+                            android:scaleType="centerInside"
+                            android:layout_marginEnd="8dp" />
+
+                        <!-- BACK -->
+                        <ImageButton
+                            android:id="@+id/filterBack"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/filter_button_background"
+                            android:src="@drawable/ic_back"
+                            android:contentDescription="Filtro back"
+                            android:padding="12dp"
+                            android:scaleType="centerInside"
+                            android:layout_marginEnd="8dp" />
+
+                        <!-- NEGATIVE -->
+                        <ImageButton
+                            android:id="@+id/filterNegative"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/filter_button_background"
+                            android:src="@drawable/ic_negative"
+                            android:contentDescription="Negativo"
+                            android:padding="12dp"
+                            android:scaleType="centerInside"
+                            android:layout_marginEnd="8dp" />
+
+                        <!-- INK -->
+                        <ImageButton
+                            android:id="@+id/filterInk"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/filter_button_background"
+                            android:src="@drawable/ic_ink"
+                            android:contentDescription="Tinta"
+                            android:padding="12dp"
+                            android:scaleType="centerInside" />
+
+                    </LinearLayout>
+                </HorizontalScrollView>
+                <LinearLayout
+                    android:id="@+id/filteredImageContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/filteredImageView"
+                        android:layout_width="200dp"
+                        android:layout_height="200dp"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/rounded_box"
+                        android:padding="4dp"
+                        android:contentDescription="Imagen con filtro aplicado"/>
+                </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnUploadPhoto"
