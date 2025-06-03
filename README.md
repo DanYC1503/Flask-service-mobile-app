@@ -164,3 +164,5 @@ El sistema está desplegado en contenedores con soporte de GPU para maximizar el
 
 UPS GLAM representa una red social innovadora que combina tecnologías modernas para brindar procesamiento de imágenes avanzado desde una app móvil.
 El uso de Firebase para la autenticación y servicios GPU para el procesamiento hace que la aplicación sea eficiente, segura y escalable.
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/DanYC1503/Flask-service-mobile-app)
