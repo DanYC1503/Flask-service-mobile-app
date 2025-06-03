@@ -29,28 +29,28 @@ public class ImageController {
     }
 
     @PostMapping(value = "/process", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<String> processImage(
-        @RequestPart("image") FilePart image,
-        @RequestPart("method") Mono<String> methodMono,
-        @RequestPart("mask_size") Mono<String> maskSizeMono) {
+public Mono<String> processImage(
+    @RequestPart("image") FilePart image,
+    @RequestPart("method") Mono<String> methodMono,
+    @RequestPart("mask_size") Mono<String> maskSizeMono) {
 
-        return Mono.zip(methodMono, maskSizeMono)
-            .flatMap(tuple -> {
-                String method = tuple.getT1();
-                String maskSize = tuple.getT2();
+    return Mono.zip(methodMono, maskSizeMono)
+        .flatMap(tuple -> {
+            String method = tuple.getT1();
+            String maskSize = tuple.getT2();
 
-                int maskSizeInt;
-                try {
-                    maskSizeInt = Integer.parseInt(maskSize);
-                } catch (NumberFormatException e) {
-                    return Mono.error(new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST, "mask_size must be an integer"));
-                }
+            int maskSizeInt;
+            try {
+                maskSizeInt = Integer.parseInt(maskSize);
+            } catch (NumberFormatException e) {
+                return Mono.error(new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "mask_size must be an integer"));
+            }
 
-                return imageService.processImage(image, image.filename(), method, maskSizeInt);
-            })
-            .map(base64 -> "{\"outputImageBase64\":\"" + base64 + "\"}");
-    }
+            return imageService.processImage(image, image.filename(), method, maskSizeInt);
+        }); // ← returns raw base64 as plain text
+}
+
 
     
 @PostMapping(value = "/process-and-upload/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

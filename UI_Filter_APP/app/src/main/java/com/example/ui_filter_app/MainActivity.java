@@ -42,6 +42,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -54,6 +56,10 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.example.ui_filter_app.FilterApi;
+
+import org.json.JSONObject;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -172,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
         btnSelectPhoto.setOnClickListener(v -> openImagePicker());
         btnUploadPhoto.setOnClickListener(v -> uploadImage());
 
-        // Initialize controller
         filterController = new FilterController();
 
         for (Integer id : filterMap.keySet()) {
@@ -197,8 +202,11 @@ public class MainActivity extends AppCompatActivity {
                 // Update selected filter method in controller
                 filterController.applyFilter(method);
 
+                // 🔥 Automatically process image with selected filter
+                processImage();
             });
         }
+
             // Verificar permisos
         checkPermissions();
     }
@@ -417,49 +425,58 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    private void processImage() {
+        if (currentBitmap == null) {
+            Toast.makeText(this, "No hay imagen para procesar", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-    private void uploadImage() {
-    if (currentBitmap == null) {
-        Toast.makeText(this, "No hay imagen para subir", Toast.LENGTH_SHORT).show();
-        return;
+        uploadProgress.setVisibility(View.VISIBLE);
+        btnUploadPhoto.setEnabled(false);
+
+        FilterController.sendFilterRequest(this, currentBitmap, FilterController.selectedMethod, new FilterController.FilterCallback() {
+            @Override
+            public void onSuccess(String jsonResponse) {
+                runOnUiThread(() -> {
+                    try {
+                        JSONObject response = new JSONObject(jsonResponse);
+                        String base64Image = response.getString("output_image_base64");
+
+                        byte[] imageBytes = Base64.decode(base64Image, Base64.DEFAULT);
+                        Bitmap filteredBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+
+                        ImageView filteredImageView = findViewById(R.id.filteredImageView);
+                        LinearLayout filteredImageContainer = findViewById(R.id.filteredImageContainer);
+
+                        filteredImageView.setImageBitmap(filteredBitmap);
+                        filteredImageContainer.setVisibility(View.VISIBLE);
+
+                        Toast.makeText(MainActivity.this, "Imagen procesada con éxito", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Error al procesar la imagen", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    } finally {
+                        uploadProgress.setVisibility(View.GONE);
+                        btnUploadPhoto.setEnabled(true);
+                    }
+                });
+            }
+
+
+            @Override
+            public void onError(String errorMessage) {
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    uploadProgress.setVisibility(View.GONE);
+                    btnUploadPhoto.setEnabled(true);
+                });
+            }
+        });
     }
 
-    uploadProgress.setVisibility(View.VISIBLE);
-    btnUploadPhoto.setEnabled(false);
 
-    // Llamamos al método estático de FilterController con el bitmap y el filtro seleccionado
-    FilterController.sendFilterRequest(currentBitmap, FilterController.selectedMethod, new FilterController.FilterCallback() {
-        @Override
-        public void onSuccess(String base64Image) {
-            runOnUiThread(() -> {
-                try {
-                    byte[] imageBytes = Base64.decode(base64Image, Base64.DEFAULT);
-                    Bitmap filteredBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+    private void uploadImage() {
 
-                    ImageView filteredImageView = findViewById(R.id.filteredImageView);
-                    LinearLayout filteredImageContainer = findViewById(R.id.filteredImageContainer);
-
-                    filteredImageView.setImageBitmap(filteredBitmap);
-                    filteredImageContainer.setVisibility(View.VISIBLE);
-
-                    Toast.makeText(MainActivity.this, "Filtro aplicado correctamente", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Toast.makeText(MainActivity.this, "Error procesando imagen filtrada", Toast.LENGTH_SHORT).show();
-                }
-                uploadProgress.setVisibility(View.GONE);
-                btnUploadPhoto.setEnabled(true);
-            });
-        }
-
-        @Override
-        public void onError(String errorMessage) {
-            runOnUiThread(() -> {
-                Toast.makeText(MainActivity.this, "Error al aplicar filtro: " + errorMessage, Toast.LENGTH_SHORT).show();
-                uploadProgress.setVisibility(View.GONE);
-                btnUploadPhoto.setEnabled(true);
-            });
-        }
-    });
 }
 
     private void savePostIdLocally(String postId) {
