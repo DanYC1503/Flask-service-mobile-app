@@ -1,5 +1,8 @@
 package com.ups.image.service.image_service.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,33 +52,43 @@ public class ImageController {
             .map(base64 -> "{\"outputImageBase64\":\"" + base64 + "\"}");
     }
 
-    @PostMapping(value = "/process-and-upload/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<String> processAndUploadImage(
-        @PathVariable String postId,
-        @RequestPart("image") FilePart image,
-        @RequestPart("method") Mono<String> methodMono,
-        @RequestPart("mask_size") Mono<String> maskSizeMono) {
+    
+@PostMapping(value = "/process-and-upload/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public Mono<String> processAndUploadImage(
+    @PathVariable String postId,
+    @RequestPart("image") FilePart image,
+    @RequestPart("method") Mono<String> methodMono,
+    @RequestPart("mask_size") Mono<String> maskSizeMono) {
 
-        return Mono.zip(methodMono, maskSizeMono)
-            .flatMap(tuple -> {
-                String method = tuple.getT1();
-                String maskSizeStr = tuple.getT2();
+    ObjectMapper objectMapper = new ObjectMapper();
 
-                int maskSize;
-                try {
-                    maskSize = Integer.parseInt(maskSizeStr);
-                } catch (NumberFormatException e) {
-                    return Mono.error(new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST, "mask_size must be an integer"));
-                }
+    return Mono.zip(methodMono, maskSizeMono)
+        .flatMap(tuple -> {
+            String method = tuple.getT1();
+            String maskSizeStr = tuple.getT2();
 
-                return imageService.processImage(image, image.filename(), method, maskSize)
-                    .flatMap(base64 -> {
+            int maskSize;
+            try {
+                maskSize = Integer.parseInt(maskSizeStr);
+            } catch (NumberFormatException e) {
+                return Mono.error(new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "mask_size must be an integer"));
+            }
+
+            return imageService.processImage(image, image.filename(), method, maskSize)
+                .flatMap(json -> {
+                    try {
+                        Map<String, Object> result = objectMapper.readValue(json, Map.class);
+                        String base64 = (String) result.get("output_image_base64");
                         byte[] imageBytes = java.util.Base64.getDecoder().decode(base64);
                         return imageService.uploadProcessedImage(imageBytes, postId, image.filename());
-                    });
-            });
-    }
+                    } catch (Exception e) {
+                        return Mono.error(new ResponseStatusException(
+                            HttpStatus.INTERNAL_SERVER_ERROR, "Invalid JSON response from processImage"));
+                    }
+                });
+        });
+}
 
     @DeleteMapping
     public Mono<ResponseEntity<Object>> deleteImageByUrl(@RequestBody String imageUrlOrName) {
