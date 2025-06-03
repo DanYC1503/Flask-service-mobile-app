@@ -49,8 +49,6 @@ services:
     networks:
       - upsnet
 
-  
-
   flask-filter-1:
     image: flask-filter-service
     container_name: flask-filter-1

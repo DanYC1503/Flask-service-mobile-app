@@ -6,6 +6,7 @@ import com.google.api.client.util.Value;
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
 
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.codec.multipart.FilePart;
@@ -54,35 +55,24 @@ public class ImageService {
         return flaskUrls[index];
     }
 
-    public Mono<String> processAndUploadImage(FilePart filePart, String postId, String method, Integer maskSize) {
+
+    public Mono<String> processImage(FilePart filePart, String filename, String method, Integer maskSize) {
         return DataBufferUtils.join(filePart.content())
             .flatMap(dataBuffer -> {
                 byte[] bytes = new byte[dataBuffer.readableByteCount()];
                 dataBuffer.read(bytes);
                 DataBufferUtils.release(dataBuffer);
-                return sendToFlask(bytes, filePart.filename(), method, maskSize);
-            })
-            .flatMap(filteredBytes -> {
-                String fileName = UUID.randomUUID().toString() + "-" + filePart.filename();
-                String path = String.format("images/posts/%s/%s", postId, fileName);
-
-                bucket.create(path, filteredBytes, "image/png");
-
-                URL signedUrl = storage.signUrl(
-                    BlobInfo.newBuilder(bucket.getName(), path).build(),
-                    1, TimeUnit.HOURS,
-                    Storage.SignUrlOption.withV4Signature()
-                );
-
-                return Mono.just(signedUrl.toString());
+                return sendToFlask(bytes, filename, method, maskSize); // ✅ Now returns Mono<String>
             });
     }
 
-    private Mono<byte[]> sendToFlask(byte[] imageBytes, String filename, String method, Integer maskSize) {
+
+
+    private Mono<String> sendToFlask(byte[] imageBytes, String filename, String method, Integer maskSize) {
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("image", imageBytes)
-               .filename(filename)
-               .contentType(MediaType.APPLICATION_OCTET_STREAM);
+            .filename(filename)
+            .contentType(MediaType.APPLICATION_OCTET_STREAM);
         builder.part("method", method);
         builder.part("mask_size", maskSize);
 
@@ -93,8 +83,11 @@ public class ImageService {
             .contentType(MediaType.MULTIPART_FORM_DATA)
             .body(BodyInserters.fromMultipartData(builder.build()))
             .retrieve()
-            .bodyToMono(byte[].class);
+            .bodyToMono(String.class); // ✅ Expect a Base64 string
     }
+
+
+
 
 
     public Mono<String> uploadImage(FilePart filePart, String postId) {
