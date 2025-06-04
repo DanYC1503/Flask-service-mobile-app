@@ -18,5 +18,12 @@ public interface FilterApi {
         @Part("method") RequestBody method,
         @Part("mask_size") RequestBody maskSize
     );
+    // Para solo subir imagen ya procesada
+    @Multipart
+    @POST("{postId}")
+    Call<String> uploadImage(
+            @retrofit2.http.Path("postId") String postId,
+            @Part MultipartBody.Part image
+    );
 
 }

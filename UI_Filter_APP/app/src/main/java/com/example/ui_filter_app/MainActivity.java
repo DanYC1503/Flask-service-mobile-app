@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -36,6 +38,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -288,10 +292,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ... (el resto de los métodos permanecen igual)
-
-
-
     private void showPostsList() {
         profileScrollView.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
@@ -476,9 +476,119 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void uploadImage() {
+        if (currentBitmap == null) {
+            Toast.makeText(this, "No hay imagen para subir", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-}
+        uploadProgress.setVisibility(View.VISIBLE);
+        btnUploadPhoto.setEnabled(false);
 
+        // 1. Create temp file with better quality
+        File file = new File(getCacheDir(), "upload_" + System.currentTimeMillis() + ".jpg");
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            currentBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error al preparar la imagen", Toast.LENGTH_SHORT).show();
+            uploadProgress.setVisibility(View.GONE);
+            btnUploadPhoto.setEnabled(true);
+            return;
+        }
+
+        // 2. Prepare upload parts
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
+        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+
+        // 3. Generate post ID
+        String postId = "post_" + System.currentTimeMillis();
+
+        // 4. Execute upload
+        api.uploadImage(postId, imagePart).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                uploadProgress.setVisibility(View.GONE);
+                btnUploadPhoto.setEnabled(true);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    String imageUrl = response.body();
+
+                    // Save and verify the upload
+                    savePostIdLocally(postId);
+                    resetUploadView();
+
+                    // Verify the image is actually accessible
+                    new Thread(() -> {
+                        boolean uploadVerified = verifyImageUpload(imageUrl);
+                        runOnUiThread(() -> {
+                            if (uploadVerified) {
+                                Toast.makeText(MainActivity.this, "Imagen subida y verificada", Toast.LENGTH_SHORT).show();
+                                refreshViews();
+                            } else {
+                                Toast.makeText(MainActivity.this, "Error: La imagen no está accesible", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }).start();
+
+                } else {
+                    String errorMsg = "Error del servidor";
+                    if (response.errorBody() != null) {
+                        try {
+                            errorMsg = response.errorBody().string();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                    Log.e("Upload", "Server response: " + response.code() + " - " + errorMsg);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                uploadProgress.setVisibility(View.GONE);
+                btnUploadPhoto.setEnabled(true);
+                Toast.makeText(MainActivity.this, "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("Upload", "Connection error", t);
+            }
+        });
+    }
+
+    // Helper method to verify image exists
+    private boolean verifyImageUpload(String imageUrl) {
+        try {
+            URL url = new URL(imageUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("HEAD");
+            int responseCode = connection.getResponseCode();
+            return responseCode == HttpURLConnection.HTTP_OK;
+        } catch (Exception e) {
+            Log.e("UploadVerify", "Verification failed", e);
+            return false;
+        }
+    }
+
+    private void resetUploadView() {
+        imagePreview.setImageBitmap(null);
+        btnUploadPhoto.setVisibility(View.GONE);
+        currentBitmap = null;
+        currentImageUri = null;
+        isImageLoaded = false;
+
+        if (selectedFilter != null) {
+            selectedFilter.setSelected(false);
+            selectedFilter = null;
+        }
+    }
+
+    private void refreshViews() {
+        if (profileScrollView.getVisibility() == View.VISIBLE) {
+            showMyPostsInProfile();
+        }
+        if (recyclerView.getVisibility() == View.VISIBLE) {
+            showPostsList();
+        }
+    }
     private void savePostIdLocally(String postId) {
         SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
         Set<String> raw = prefs.getStringSet("postData", new HashSet<>());

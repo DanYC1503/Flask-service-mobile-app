@@ -1,24 +1,18 @@
 package com.example.ui_filter_app;
 
 import okhttp3.MultipartBody;
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.Header;
-import retrofit2.http.Multipart;
-import retrofit2.http.POST;
-
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 
 import java.util.List;
-
-import com.example.ui_filter_app.UserProfileDTO;
 
 public interface UserServiceAPI {
     @POST("/users/register")
@@ -34,7 +28,7 @@ public interface UserServiceAPI {
     Call<Void> deleteUser(@Path("uid") String uid);
 
     @GET("/users")
-    Call<List<UserProfileDTO>> getAllUsers(); // opcional, si quieres listar usuarios
+    Call<List<UserProfileDTO>> getAllUsers();
 
     @Multipart
     @POST("upload/{postId}")
@@ -43,13 +37,10 @@ public interface UserServiceAPI {
             @Part MultipartBody.Part file
     );
 
-   
-
     @GET("/upload/{postId}")
     Call<String> getImageUrl(@Path("postId") String postId);
-
-
-
-
-
 }
+
+
+
+
