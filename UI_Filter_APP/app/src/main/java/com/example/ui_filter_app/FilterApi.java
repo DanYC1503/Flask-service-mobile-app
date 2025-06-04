@@ -20,10 +20,10 @@ public interface FilterApi {
     );
     // Para solo subir imagen ya procesada
     @Multipart
-    @POST("{postId}")
+    @POST("upload/uploadToBucket")
     Call<String> uploadImage(
-            @retrofit2.http.Path("postId") String postId,
             @Part MultipartBody.Part image
     );
+
 
 }

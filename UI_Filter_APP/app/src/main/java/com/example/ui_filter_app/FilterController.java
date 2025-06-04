@@ -25,6 +25,7 @@ public class FilterController {
 
     public static String selectedMethod = "none"; // default
 
+
     public interface FilterCallback {
         void onSuccess(String base64Image);
         void onError(String errorMessage);
@@ -65,6 +66,35 @@ public class FilterController {
             callback.onError("Failed: " + t.getMessage());
         }
     });
+    }
+
+    public static void uploadImageToBucket(Context context, Bitmap bitmap, FilterCallback callback) {
+        FilterApi api = getFilterApi(context);
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] imageBytes = stream.toByteArray();
+
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageBytes);
+        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image", "upload.jpg", requestFile);
+
+        Call<String> call = api.uploadImage(imagePart);
+
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body()); // Returns the signed URL
+                } else {
+                    callback.onError("Upload error: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                callback.onError("Upload failed: " + t.getMessage());
+            }
+        });
     }
 
 

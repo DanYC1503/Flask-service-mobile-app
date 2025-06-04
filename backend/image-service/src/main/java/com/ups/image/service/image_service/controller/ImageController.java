@@ -24,12 +24,11 @@ public class ImageController {
     @Autowired
     private ImageService imageService;
 
-    @PostMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<String> uploadImage(
-            @PathVariable String postId,
-            @RequestPart("image") FilePart filePart) {  // Changed from "file" to "image"
-        return imageService.uploadImage(filePart, postId);
+    @PostMapping(value = "/uploadToBucket", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<String> uploadImageToBucket(@RequestPart("image") FilePart filePart) {
+        return imageService.uploadImage(filePart);
     }
+
 
     @PostMapping(value = "/process", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 public Mono<String> processImage(

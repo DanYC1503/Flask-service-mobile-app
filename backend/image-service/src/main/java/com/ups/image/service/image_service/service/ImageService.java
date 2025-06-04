@@ -82,8 +82,7 @@ public class ImageService {
             .retrieve()
             .bodyToMono(String.class); // ✅ Expect a Base64 string
     }
-
-    public Mono<String> uploadImage(FilePart filePart, String postId) {
+    public Mono<String> uploadImage(FilePart filePart) {
         return DataBufferUtils.join(filePart.content())
             .map(dataBuffer -> {
                 byte[] bytes = new byte[dataBuffer.readableByteCount()];
@@ -93,19 +92,20 @@ public class ImageService {
             })
             .flatMap(bytes -> {
                 String fileName = UUID.randomUUID().toString() + "-" + filePart.filename();
-                String path = String.format("images/posts/%s/%s", postId, fileName);
-                
+                String path = String.format("images/uploads/%s", fileName); // No postId
+
                 bucket.create(path, bytes, filePart.headers().getContentType().toString());
-                
+
                 URL signedUrl = storage.signUrl(
                     BlobInfo.newBuilder(bucket.getName(), path).build(),
                     1, TimeUnit.HOURS,
                     Storage.SignUrlOption.withV4Signature()
                 );
-                
+
                 return Mono.just(signedUrl.toString());
             });
     }
+
 
     public Mono<String> getImageUrl(String postId) {
         return Mono.fromCallable(() -> {

@@ -13,12 +13,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Image View -->
         <ImageView
             android:id="@+id/postImageView"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:scaleType="centerCrop" />
 
+        <!-- User name and action buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -57,6 +59,59 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_comment"
                     android:background="?attr/selectableItemBackgroundBorderless" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Comments Section -->
+        <LinearLayout
+            android:id="@+id/commentsSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:descendantFocusability="afterDescendants"
+            android:focusableInTouchMode="true"
+            android:visibility="gone"
+            android:padding="8dp"
+            android:background="@drawable/rounded_dark_bg">
+
+
+            <TextView
+                android:id="@+id/commentsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Comments"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:id="@+id/commentsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/commentInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:imeOptions="actionDone"
+                    android:inputType="text"
+                    android:hint="Add a comment..."/>
+
+                <Button
+                    android:id="@+id/postCommentButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Post"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

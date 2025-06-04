@@ -46,7 +46,8 @@
         <!-- Tu MainActivity (cuando ya estés logueado) -->
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="false" 
+            android:windowSoftInputMode="adjustPan"/>
     </application>
 
 </manifest>

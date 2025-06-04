@@ -30,13 +30,6 @@ public interface UserServiceAPI {
     @GET("/users")
     Call<List<UserProfileDTO>> getAllUsers();
 
-    @Multipart
-    @POST("upload/{postId}")
-    Call<String> uploadImage(
-            @Path("postId") String postId,
-            @Part MultipartBody.Part file
-    );
-
     @GET("/upload/{postId}")
     Call<String> getImageUrl(@Path("postId") String postId);
 }

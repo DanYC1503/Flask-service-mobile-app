@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -22,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ImageButton;
 
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private ScrollView profileScrollView;
     private FrameLayout uploadLayout;
 
-    private LinearLayout myPostsContainer;
+    private RecyclerView myPostsContainer;
     private FilterController filterController;
 
     private final Map<Integer, String> filterMap = new HashMap<Integer, String>() {{
@@ -153,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_upload) {
                 showUploadSection();
             } else if (itemId == R.id.nav_home) {  // <- Este sería el ítem del feed general
-                showPostsList();  // Muestra todas las publicaciones
+                showOtherPosts();  // Muestra todas las publicaciones
             }
             return true;
         });
@@ -161,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
         api = RetrofitClient.getClient(MainActivity.this).create(UserServiceAPI.class);
 
         // Por defecto mostramos lista de posts
-        showPostsList();
+        showOtherPosts();
 
         // Configurar listeners
         btnUpdate.setOnClickListener(v -> updateUserProfile());
@@ -234,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                     displayNameField.setText(user.getDisplayName());
                     bioField.setText(user.getBio());
 
-                    showMyPostsInProfile(); // Solo aquí, tras cargar los datos
+                    showMyPosts(); // Solo aquí, tras cargar los datos
                 } else {
                     Toast.makeText(MainActivity.this, "Error al cargar perfil: Código " + response.code(), Toast.LENGTH_SHORT).show();
                 }
@@ -292,42 +294,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showPostsList() {
-        profileScrollView.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.VISIBLE);
-        uploadLayout.setVisibility(View.GONE);
 
-        SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
-        Set<String> raw = prefs.getStringSet("postData", new HashSet<>());
-        List<PostImage> postImages = new ArrayList<>();
-        PostImageAdapter adapter = new PostImageAdapter(this, postImages);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
-
-        // Mostrar TODAS las publicaciones (propias y de otros)
-        for (String entry : raw) {
-            String[] parts = entry.split("::");
-            if (parts.length == 2) {  // Eliminamos cualquier filtro que hubiera
-                String postId = parts[0];
-                String userName = parts[1];
-
-                api.getImageUrl(postId).enqueue(new Callback<String>() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            postImages.add(new PostImage(postId, response.body(), userName));
-                            adapter.notifyItemInserted(postImages.size() - 1);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-                        Log.e("ImageLoad", "Error al obtener imagen: " + t.getMessage());
-                    }
-                });
-            }
-        }
-    }
 
     private void showUploadSection() {
         recyclerView.setVisibility(View.GONE);
@@ -476,6 +443,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void uploadImage() {
+        ImageView filteredImageView = findViewById(R.id.filteredImageView);
+        filteredImageView.setDrawingCacheEnabled(true);
+        filteredImageView.buildDrawingCache();
+        Bitmap currentBitmap = ((BitmapDrawable) filteredImageView.getDrawable()).getBitmap();
+
         if (currentBitmap == null) {
             Toast.makeText(this, "No hay imagen para subir", Toast.LENGTH_SHORT).show();
             return;
@@ -484,75 +456,44 @@ public class MainActivity extends AppCompatActivity {
         uploadProgress.setVisibility(View.VISIBLE);
         btnUploadPhoto.setEnabled(false);
 
-        // 1. Create temp file with better quality
-        File file = new File(getCacheDir(), "upload_" + System.currentTimeMillis() + ".jpg");
-        try (FileOutputStream out = new FileOutputStream(file)) {
-            currentBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Error al preparar la imagen", Toast.LENGTH_SHORT).show();
-            uploadProgress.setVisibility(View.GONE);
-            btnUploadPhoto.setEnabled(true);
-            return;
-        }
-
-        // 2. Prepare upload parts
-        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file);
-        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
-
-        // 3. Generate post ID
-        String postId = "post_" + System.currentTimeMillis();
-
-        // 4. Execute upload
-        api.uploadImage(postId, imagePart).enqueue(new Callback<String>() {
+        filterController.uploadImageToBucket(this, currentBitmap, new FilterController.FilterCallback() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                uploadProgress.setVisibility(View.GONE);
-                btnUploadPhoto.setEnabled(true);
+            public void onSuccess(String imageUrl) {
+                runOnUiThread(() -> {
+                    uploadProgress.setVisibility(View.GONE);
+                    btnUploadPhoto.setEnabled(true);
+                    Toast.makeText(MainActivity.this, "Imagen subida con éxito", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Image URL: " + imageUrl, Toast.LENGTH_SHORT).show();
+                    createPost(imageUrl);
 
-                if (response.isSuccessful() && response.body() != null) {
-                    String imageUrl = response.body();
-
-                    // Save and verify the upload
-                    savePostIdLocally(postId);
-                    resetUploadView();
-
-                    // Verify the image is actually accessible
+                    // Optional verification
                     new Thread(() -> {
                         boolean uploadVerified = verifyImageUpload(imageUrl);
                         runOnUiThread(() -> {
                             if (uploadVerified) {
-                                Toast.makeText(MainActivity.this, "Imagen subida y verificada", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Imagen verificada", Toast.LENGTH_SHORT).show();
                                 refreshViews();
                             } else {
-                                Toast.makeText(MainActivity.this, "Error: La imagen no está accesible", Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this, "La imagen no está accesible", Toast.LENGTH_LONG).show();
                             }
                         });
                     }).start();
-
-                } else {
-                    String errorMsg = "Error del servidor";
-                    if (response.errorBody() != null) {
-                        try {
-                            errorMsg = response.errorBody().string();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
-                    Log.e("Upload", "Server response: " + response.code() + " - " + errorMsg);
-                }
+                });
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                uploadProgress.setVisibility(View.GONE);
-                btnUploadPhoto.setEnabled(true);
-                Toast.makeText(MainActivity.this, "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("Upload", "Connection error", t);
+            public void onError(String errorMessage) {
+                runOnUiThread(() -> {
+                    uploadProgress.setVisibility(View.GONE);
+                    btnUploadPhoto.setEnabled(true);
+                    Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    Log.e("Upload", errorMessage);
+                });
             }
         });
     }
+
+
 
     // Helper method to verify image exists
     private boolean verifyImageUpload(String imageUrl) {
@@ -568,25 +509,80 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void resetUploadView() {
-        imagePreview.setImageBitmap(null);
-        btnUploadPhoto.setVisibility(View.GONE);
-        currentBitmap = null;
-        currentImageUri = null;
-        isImageLoaded = false;
+    private void createPost(String imageUrl) {
+        String authorId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Log.d("createPost", "AuthorId: " + authorId);
 
-        if (selectedFilter != null) {
-            selectedFilter.setSelected(false);
-            selectedFilter = null;
-        }
+        // First get user info
+        UserServiceAPI userServiceAPI = RetrofitClient.getClient(MainActivity.this).create(UserServiceAPI.class);
+
+        Call<UserProfileDTO> userCall = userServiceAPI.getUser(authorId);
+
+        userCall.enqueue(new Callback<UserProfileDTO>() {
+            @Override
+            public void onResponse(Call<UserProfileDTO> call, Response<UserProfileDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserProfileDTO user = response.body();
+                    Log.d("createPost", "User fetched: uid=" + user.getUid() + ", userName=" + user.getUserName());
+
+                    String userName = user.getUserName(); // Title will be the username
+
+                    // Now create the PostDTO
+                    PostDTO postDTO = new PostDTO(userName, imageUrl, authorId);
+                    Log.d("createPost", "PostDTO created: title=" + postDTO.getTitle() + ", content=" + postDTO.getContent() + ", authorId=" + postDTO.getAuthorId());
+
+                    PostServiceAPI postServiceAPI = RetrofitClient.getClient(MainActivity.this).create(PostServiceAPI.class);
+
+                    Call<Post> postCall = postServiceAPI.uploadPostToFeed(postDTO);
+
+                    postCall.enqueue(new Callback<Post>() {
+                        @Override
+                        public void onResponse(Call<Post> call, Response<Post> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                Post post = response.body();
+                                Log.d("createPost", "Post created: id=" + post.getId());
+                                Toast.makeText(MainActivity.this, "Post creado: " + post.getId(), Toast.LENGTH_SHORT).show();
+                            } else {
+                                // Log full error response body
+                                try {
+                                    String errorBody = response.errorBody().string();
+                                    Log.e("createPost", "Error creating post: " + errorBody);
+                                    Toast.makeText(MainActivity.this, "Error en servidor:\n" + errorBody, Toast.LENGTH_LONG).show();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(MainActivity.this, "Error al leer el error", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Post> call, Throwable t) {
+                            Log.e("createPost", "Failure creating post", t);
+                            Toast.makeText(MainActivity.this, "Fallo en la conexión (Post): " + t.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                } else {
+                    Log.e("createPost", "Error fetching user: " + response.message());
+                    Toast.makeText(MainActivity.this, "No se pudo obtener el usuario: " + response.message(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserProfileDTO> call, Throwable t) {
+                Log.e("createPost", "Failure fetching user", t);
+                Toast.makeText(MainActivity.this, "Fallo en la conexión (User): " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
+
 
     private void refreshViews() {
         if (profileScrollView.getVisibility() == View.VISIBLE) {
-            showMyPostsInProfile();
+            showMyPosts();
         }
         if (recyclerView.getVisibility() == View.VISIBLE) {
-            showPostsList();
+            showOtherPosts();
         }
     }
     private void savePostIdLocally(String postId) {
@@ -603,24 +599,7 @@ public class MainActivity extends AppCompatActivity {
         prefs.edit().putStringSet("postData", raw).apply();
     }
 
-    private File bitmapToFile(Bitmap bitmap) {
-        File file = new File(getCacheDir(), "temp_image.jpg");
-        try {
-            file.createNewFile();
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
-            byte[] bitmapData = bos.toByteArray();
 
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(bitmapData);
-            fos.flush();
-            fos.close();
-            return file;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     private void checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
@@ -655,44 +634,68 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showMyPosts() {
-        profileScrollView.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.VISIBLE);
+        profileScrollView.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
         uploadLayout.setVisibility(View.GONE);
 
-        SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
-        Set<String> raw = prefs.getStringSet("postData", new HashSet<>());
-        List<PostImage> myImages = new ArrayList<>();
-        PostImageAdapter adapter = new PostImageAdapter(this, myImages);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+        myPostsContainer.setVisibility(View.VISIBLE);
 
-        String myName = displayNameField.getText().toString().trim();
-        if (myName.isEmpty()) {
-            myName = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        }
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        for (String entry : raw) {
-            String[] parts = entry.split("::");
-            if (parts.length == 2 && parts[1].equals(myName)) {
-                String postId = parts[0];
-                String userName = parts[1];
+        PostServiceAPI postServiceAPI = RetrofitClient.getClient(MainActivity.this).create(PostServiceAPI.class);
+        UserServiceAPI userServiceAPI = RetrofitClient.getClient(MainActivity.this).create(UserServiceAPI.class);
 
-                api.getImageUrl(postId).enqueue(new Callback<String>() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            myImages.add(new PostImage(postId, response.body(), userName));
-                            adapter.notifyItemInserted(myImages.size() - 1);
+        List<PostImage> myPostImages = new ArrayList<>();
+        PostImageAdapter adapter = new PostImageAdapter(this, myPostImages, postServiceAPI, userId, userServiceAPI);
+
+        myPostsContainer.setLayoutManager(new LinearLayoutManager(this));
+        myPostsContainer.setAdapter(adapter);
+
+        userServiceAPI.getUser(userId).enqueue(new Callback<UserProfileDTO>() {
+            @Override
+            public void onResponse(Call<UserProfileDTO> call, Response<UserProfileDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String userName = response.body().getUserName();
+
+                    postServiceAPI.getAllPosts().enqueue(new Callback<List<Post>>() {
+                        @Override
+                        public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                List<Post> allPosts = response.body();
+
+                                for (Post post : allPosts) {
+                                    if (userId.equals(post.getAuthorId())) {
+                                        String imageUrl = post.getContent();
+                                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                                            // Add to adapter's data list
+                                            myPostImages.add(new PostImage(post.getId(), imageUrl, userName));
+                                        }
+                                    }
+                                }
+
+                                // Notify adapter of data change to update RecyclerView
+                                adapter.notifyDataSetChanged();
+                            } else {
+                                Toast.makeText(MainActivity.this, "No se pudo cargar posts", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-                        Log.e("ImageLoad", "Error al obtener imagen: " + t.getMessage());
-                    }
-                });
+                        @Override
+                        public void onFailure(Call<List<Post>> call, Throwable t) {
+                            Toast.makeText(MainActivity.this, "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                } else {
+                    Toast.makeText(MainActivity.this, "No se pudo obtener el usuario para mostrar posts", Toast.LENGTH_LONG).show();
+                }
             }
-        }
+
+            @Override
+            public void onFailure(Call<UserProfileDTO> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Fallo en la conexión al obtener usuario: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void showOtherPosts() {
@@ -700,39 +703,59 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setVisibility(View.VISIBLE);
         uploadLayout.setVisibility(View.GONE);
 
-        SharedPreferences prefs = getSharedPreferences("posts", MODE_PRIVATE);
-        Set<String> raw = prefs.getStringSet("postData", new HashSet<>());
-        List<PostImage> otherImages = new ArrayList<>();
-        PostImageAdapter adapter = new PostImageAdapter(this, otherImages);
+        // Initialize APIs first
+        PostServiceAPI postServiceAPI = RetrofitClient.getClient(MainActivity.this).create(PostServiceAPI.class);
+        UserServiceAPI userServiceAPI = RetrofitClient.getClient(MainActivity.this).create(UserServiceAPI.class);
+
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        List<PostImage> postImages = new ArrayList<>();
+
+        // Pass APIs and userId to adapter
+        PostImageAdapter adapter = new PostImageAdapter(this, postImages, postServiceAPI, currentUserId, userServiceAPI);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        postServiceAPI.getAllPosts().enqueue(new Callback<List<Post>>() {
+            @Override
+            public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Post> allPosts = response.body();
+                    LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+                    for (Post post : allPosts) {
+                        String imageUrl = post.getContent();
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            View postView = inflater.inflate(R.layout.item_post, recyclerView, false);
+                            userServiceAPI.getUser(post.getAuthorId()).enqueue(new Callback<UserProfileDTO>() {
+                                @Override
+                                public void onResponse(Call<UserProfileDTO> call, Response<UserProfileDTO> userResponse) {
+                                    if (userResponse.isSuccessful() && userResponse.body() != null) {
+                                        String userName = userResponse.body().getUserName();
 
-        String myName = displayNameField.getText().toString().trim();
-        if (myName.isEmpty()) {
-            myName = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        }
+                                        PostImage item = new PostImage(post.getId(), imageUrl, userName);
+                                        postImages.add(item);
+                                        adapter.notifyItemInserted(postImages.size() - 1);
+                                    } else {
+                                        Log.e("UserFetch", "No se pudo obtener nombre para el autor ID: " + post.getAuthorId());
+                                    }
+                                }
 
-        for (String entry : raw) {
-            String[] parts = entry.split("::");
-            if (parts.length == 2 && !parts[1].equals(myName)) {
-                String postId = parts[0];
-                String userName = parts[1];
-
-                api.getImageUrl(postId).enqueue(new Callback<String>() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            otherImages.add(new PostImage(postId, response.body(), userName));
-                            adapter.notifyItemInserted(otherImages.size() - 1);
+                                @Override
+                                public void onFailure(Call<UserProfileDTO> call, Throwable t) {
+                                    Log.e("UserFetch", "Error al obtener usuario: " + t.getMessage());
+                                }
+                            });
                         }
                     }
-
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-                        Log.e("ImageLoad", "Error al obtener imagen: " + t.getMessage());
-                    }
-                });
+                } else {
+                    Toast.makeText(MainActivity.this, "No se pudo cargar posts", Toast.LENGTH_SHORT).show();
+                }
             }
-        }
+
+            @Override
+            public void onFailure(Call<List<Post>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 }
