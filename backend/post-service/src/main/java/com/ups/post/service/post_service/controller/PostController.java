@@ -35,7 +35,7 @@ public class PostController {
         this.postService = postService;
     }
 
-    @PostMapping
+    @PostMapping("/post")
     public Mono<ResponseEntity<Post>> createPost(@RequestBody PostDTO dto) {
         return postService.createPost(dto)
                 .map(p -> ResponseEntity.status(HttpStatus.CREATED).body(p));

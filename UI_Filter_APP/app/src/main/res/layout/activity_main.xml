@@ -65,81 +65,195 @@
             app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="24dp">
-
-                <ImageView
-                    android:id="@+id/imagePreview"
-                    android:layout_width="300dp"
-                    android:layout_height="300dp"
-                    android:scaleType="centerCrop"
-                    android:background="#F5F5F5"
-                    android:contentDescription="Vista previa de la imagen"
-                    android:elevation="4dp"
-                    android:outlineProvider="bounds"/>
-
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="24dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
                     android:gravity="center"
-                    android:paddingHorizontal="16dp">
+                    android:padding="24dp">
+
+                    <ImageView
+                        android:id="@+id/imagePreview"
+                        android:layout_width="300dp"
+                        android:layout_height="300dp"
+                        android:scaleType="centerCrop"
+                        android:background="#F5F5F5"
+                        android:contentDescription="Vista previa de la imagen"
+                        android:elevation="4dp"
+                        android:outlineProvider="bounds"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="24dp"
+                        android:gravity="center"
+                        android:paddingHorizontal="16dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTakePhoto"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Tomar Foto"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:backgroundTint="#5C6BC0"
+                            android:textColor="@android:color/white"
+                            app:cornerRadius="8dp"
+                            android:elevation="2dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSelectPhoto"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="Seleccionar"
+                            android:textSize="13sp"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:backgroundTint="#7986CB"
+                            android:textColor="@android:color/white"
+                            app:cornerRadius="8dp"
+                            android:elevation="2dp"/>
+                    </LinearLayout>
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/filterOptionsLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingBottom="8dp">
+
+                            <!-- NO FILTER -->
+                            <ImageButton
+                                android:id="@+id/filterNone"
+                                android:layout_width="64dp"
+                                android:layout_height="64dp"
+                                android:background="@drawable/filter_button_background"
+                                android:src="@drawable/ic_no_filter"
+                                android:contentDescription="Sin filtro"
+                                android:padding="12dp"
+                                android:scaleType="centerInside"
+                                android:layout_marginEnd="8dp"
+                                android:focusable="true"
+                                android:clickable="true"/>
+
+                            <!-- MOTION -->
+                            <ImageButton
+                                android:id="@+id/filterMotion"
+                                android:layout_width="64dp"
+                                android:layout_height="64dp"
+                                android:background="@drawable/filter_button_background"
+                                android:src="@drawable/ic_motion"
+                                android:contentDescription="Motion Blur"
+                                android:padding="12dp"
+                                android:scaleType="centerInside"
+                                android:layout_marginEnd="8dp" />
+
+                            <!-- DOG -->
+                            <ImageButton
+                                android:id="@+id/filterDog"
+                                android:layout_width="64dp"
+                                android:layout_height="64dp"
+                                android:background="@drawable/filter_button_background"
+                                android:src="@drawable/ic_dog"
+                                android:contentDescription="Filtro perro"
+                                android:padding="12dp"
+                                android:scaleType="centerInside"
+                                android:layout_marginEnd="8dp" />
+
+                            <!-- BACK -->
+                            <ImageButton
+                                android:id="@+id/filterBack"
+                                android:layout_width="64dp"
+                                android:layout_height="64dp"
+                                android:background="@drawable/filter_button_background"
+                                android:src="@drawable/ic_back"
+                                android:contentDescription="Filtro back"
+                                android:padding="12dp"
+                                android:scaleType="centerInside"
+                                android:layout_marginEnd="8dp" />
+
+                            <!-- NEGATIVE -->
+                            <ImageButton
+                                android:id="@+id/filterNegative"
+                                android:layout_width="64dp"
+                                android:layout_height="64dp"
+                                android:background="@drawable/filter_button_background"
+                                android:src="@drawable/ic_negative"
+                                android:contentDescription="Negativo"
+                                android:padding="12dp"
+                                android:scaleType="centerInside"
+                                android:layout_marginEnd="8dp" />
+
+                            <!-- INK -->
+                            <ImageButton
+                                android:id="@+id/filterInk"
+                                android:layout_width="64dp"
+                                android:layout_height="64dp"
+                                android:background="@drawable/filter_button_background"
+                                android:src="@drawable/ic_ink"
+                                android:contentDescription="Tinta"
+                                android:padding="12dp"
+                                android:scaleType="centerInside" />
+
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                    <LinearLayout
+                        android:id="@+id/filteredImageContainer"
+                        android:layout_width="300dp"
+                        android:layout_height="300dp"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/filteredImageView"
+                            android:layout_width="300dp"
+                            android:layout_height="300dp"
+                            android:scaleType="centerCrop"
+                            android:background="@drawable/rounded_box"
+                            android:padding="4dp"
+                            android:contentDescription="Imagen con filtro aplicado"
+                            android:elevation="4dp"
+                            android:outlineProvider="bounds"/>
+                    </LinearLayout>
+
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnTakePhoto"
-                        android:layout_width="0dp"
+                        android:id="@+id/btnUploadPhoto"
+                        android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="8dp"
-                        android:text="Tomar Foto"
+                        android:text="Subir Foto"
                         style="@style/Widget.MaterialComponents.Button"
                         android:backgroundTint="#5C6BC0"
                         android:textColor="@android:color/white"
+                        android:layout_marginTop="24dp"
                         app:cornerRadius="8dp"
-                        android:elevation="2dp"/>
+                        android:elevation="2dp"
+                        android:visibility="gone"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSelectPhoto"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:text="Seleccionar"
-                        android:textSize="13sp"
-                        style="@style/Widget.MaterialComponents.Button"
-                        android:backgroundTint="#7986CB"
-                        android:textColor="@android:color/white"
-                        app:cornerRadius="8dp"
-                        android:elevation="2dp"/>
+                    <ProgressBar
+                        android:id="@+id/uploadProgress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:indeterminateTint="#5C6BC0"
+                        android:visibility="gone"/>
                 </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnUploadPhoto"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="Subir Foto"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:backgroundTint="#5C6BC0"
-                    android:textColor="@android:color/white"
-                    android:layout_marginTop="24dp"
-                    app:cornerRadius="8dp"
-                    android:elevation="2dp"
-                    android:visibility="gone"/>
-
-                <ProgressBar
-                    android:id="@+id/uploadProgress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:indeterminateTint="#5C6BC0"
-                    android:visibility="gone"/>
-            </LinearLayout>
+            </ScrollView>
         </FrameLayout>
 
         <!-- Vista de perfil mejorada -->
@@ -186,6 +300,8 @@
                         android:layout_height="2dp"
                         android:background="#5C6BC0"
                         android:layout_marginTop="8dp"/>
+
+
                 </LinearLayout>
 
                 <!-- Sección de información mejorada -->
@@ -313,6 +429,25 @@
                     app:cornerRadius="8dp"
                     android:elevation="2dp"
                     android:fontFamily="sans-serif-medium"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mis publicaciones"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#5C6BC0"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="8dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/myPostsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                />
+
+
             </LinearLayout>
         </ScrollView>
 

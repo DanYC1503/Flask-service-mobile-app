@@ -1,7 +1,7 @@
 FROM eclipse-temurin:22-jdk-alpine
 WORKDIR /app
 
-COPY /target/post-service.jar app.jar
+COPY /target/user-service.jar app.jar
 
-EXPOSE 8082
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
