@@ -49,6 +49,13 @@ services:
     networks:
       - upsnet
 
+  flask-filter-builder:
+    build:
+      context: ./flask_pycuda
+      dockerfile: Dockerfile
+    image: flask-filter-service
+    entrypoint: ["echo", "image built"]
+    
   flask-filter-1:
     image: flask-filter-service
     container_name: flask-filter-1
